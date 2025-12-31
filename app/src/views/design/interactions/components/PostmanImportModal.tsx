@@ -9,10 +9,10 @@ interface PostmanImportModalProps {
 }
 
 const LOADING_STEPS = [
-  "Step 1 of 3 · Reading files…",
-  "Parsing collections",
-  "Validating requests",
-  "Preparing import",
+  { step: 1, text: "Reading files…" },
+  { step: 2, text: "Parsing collections" },
+  { step: 3, text: "Validating requests" },
+  { step: 3, text: "Preparing import" },
 ];
 
 export const PostmanImportModal: React.FC<PostmanImportModalProps> = ({ isOpen, onClose }) => {
@@ -79,18 +79,23 @@ export const PostmanImportModal: React.FC<PostmanImportModalProps> = ({ isOpen, 
           <div className="postman-import-loading-section">
             <div className="postman-import-spinner-container">
               <div className="postman-import-spinner"></div>
-              <AnimatePresence mode="wait">
-                <m.div
-                  key={currentStepIndex}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.3 }}
-                  className="postman-import-loading-text"
-                >
-                  {LOADING_STEPS[currentStepIndex]}
-                </m.div>
-              </AnimatePresence>
+              <div className="postman-import-loading-text-wrapper">
+                <span className="postman-import-step-indicator">
+                  Step {LOADING_STEPS[currentStepIndex].step} of 3 ·
+                </span>
+                <AnimatePresence mode="wait">
+                  <m.span
+                    key={currentStepIndex}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                    className="postman-import-loading-text"
+                  >
+                    {LOADING_STEPS[currentStepIndex].text}
+                  </m.span>
+                </AnimatePresence>
+              </div>
             </div>
             <div className="postman-import-info-text">
               <p>This is taking longer than usual for large collections.</p>

@@ -99,12 +99,26 @@
   }
 }
 
+.postman-import-loading-text-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 18px;
+}
+
+.postman-import-step-indicator {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
+  color: var(--requestly-color-text-default, #ffffff);
+  white-space: nowrap;
+}
+
 .postman-import-loading-text {
   font-size: 12px;
   font-weight: 500;
   line-height: 18px;
   color: var(--requestly-color-text-default, #ffffff);
-  min-height: 18px;
 }
 
 .postman-import-info-text {
