@@ -1,0 +1,112 @@
+.design-toolbar {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  pointer-events: none;
+  user-select: none;
+  cursor: move;
+
+  &.dragging {
+    cursor: grabbing;
+    pointer-events: auto;
+
+    .design-toolbar-content {
+      pointer-events: none;
+    }
+  }
+
+  &:not(.dragging):hover {
+    cursor: grab;
+  }
+}
+
+.design-toolbar-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.3);
+  pointer-events: auto;
+}
+
+.design-toolbar-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: var(--requestly-color-text-default, #ffffff);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  pointer-events: auto;
+
+  svg,
+  .react-icons {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  &:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  &:active:not(:disabled) {
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  &.active {
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--requestly-color-text-default, #ffffff);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.design-toolbar-button-placeholder {
+  opacity: 0.6;
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 2px,
+      rgba(255, 255, 255, 0.05) 2px,
+      rgba(255, 255, 255, 0.05) 4px
+    );
+    border-radius: 8px;
+    pointer-events: none;
+  }
+}
+
+// Responsive: Hide text on smaller screens, show only icons
+@media (max-width: 768px) {
+  .design-toolbar-button {
+    padding: 8px;
+
+    span {
+      display: none;
+    }
+  }
+}

@@ -32,6 +32,7 @@ import { useAppLanguageObserver } from "hooks/useAppLanguageObserver";
 import useClientStorageService from "services/clientStorageService/hooks/useClientStorageService";
 import { BlockScreenHoc } from "componentsV2/BlockScreen/BlockScreenHoc";
 import { AppUpdateNotifier } from "componentsV2/AppUpdateNotifier/AppUpdateNotifier";
+import { DesignToolbar } from "components/misc/DesignToolbar";
 
 const { PATHS } = APP_CONSTANTS;
 const App: React.FC = () => {
@@ -96,6 +97,7 @@ const App: React.FC = () => {
                 <CommandBar />
                 <UpdateDialog />
                 <GlobalModals />
+                <DesignToolbar />
                 <BlockScreenHoc>
                   <Outlet />
                 </BlockScreenHoc>

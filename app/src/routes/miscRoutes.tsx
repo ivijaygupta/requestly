@@ -18,8 +18,13 @@ import { ImportFromResourceOverrideWrapperView } from "features/rules/screens/ru
 import { HeaderEditorImportScreen } from "features/rules/screens/rulesList/components/RulesList/components/ImporterComponents/HeaderEditorImporter/HeaderEditorImporterScreen";
 import QuitDesktop from "components/misc/QuitDesktop";
 import { GithubStudentPack } from "features/onboarding/componentsV2/GithubStudentPack/GithubStudentPack";
+import InteractionsPage from "views/design/interactions";
 
 export const miscRoutes: RouteObject[] = [
+  {
+    path: PATHS.DESIGN.INTERACTIONS.RELATIVE,
+    element: <InteractionsPage />,
+  },
   {
     path: PATHS.DESKTOP.QUIT.RELATIVE,
     element: <QuitDesktop />,
