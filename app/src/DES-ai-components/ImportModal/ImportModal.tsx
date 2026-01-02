@@ -56,7 +56,9 @@ const ImportModal: React.FC<ImportModalProps> = ({ isOpen, onClose }) => {
     // Simple highlighting helper
     const renderLabel = (label: string) => {
         if (!searchTerm) return label;
-        const parts = label.split(new RegExp(`(${searchTerm})`, 'gi'));
+        // Escape special regex characters to prevent crashes
+        const escapedSearchTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const parts = label.split(new RegExp(`(${escapedSearchTerm})`, 'gi'));
         return (
             <span>
                 {parts.map((part, i) =>

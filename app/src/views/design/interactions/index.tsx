@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { PostmanImportModal } from "./components/PostmanImportModal";
+import { PostmanImportModal } from "../../../DES-ai-components/PostmanImportModal";
 import { ImportModal } from "../../../DES-ai-components/ImportModal";
 import "./interactions.scss";
 
