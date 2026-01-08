@@ -15,6 +15,7 @@ import Profile from "../components/Profile/ManageAccount";
 import { BillingTeamDetails } from "../components/BillingTeam/components/BillingDetails";
 import { BillingList } from "../components/BillingTeam/components/BillingList";
 import { UserPlanDetails } from "../components/BillingTeam/components/UserPlanDetails";
+import { SecretsPage, ProviderDetailsWrapper } from "DES-ai-components/Secrets";
 
 const isSessionsNewSettingsPageCompatible = isFeatureCompatible(FEATURES.SESSION_ONBOARDING);
 
@@ -66,6 +67,14 @@ export const settingRoutes: RouteObject[] = [
       {
         path: PATHS.SETTINGS.MY_PLAN.RELATIVE,
         element: <ProtectedRoute component={UserPlanDetails} />,
+      },
+      {
+        path: PATHS.SETTINGS.SECRETS.RELATIVE,
+        element: <SecretsPage />,
+      },
+      {
+        path: PATHS.SETTINGS.SECRETS.RELATIVE + "/:providerId",
+        element: <ProviderDetailsWrapper />,
       },
     ],
   },

@@ -1,0 +1,1 @@
+export { SecretsTable } from "./SecretsTable";
