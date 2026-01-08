@@ -19,11 +19,20 @@ import { HeaderEditorImportScreen } from "features/rules/screens/rulesList/compo
 import QuitDesktop from "components/misc/QuitDesktop";
 import { GithubStudentPack } from "features/onboarding/componentsV2/GithubStudentPack/GithubStudentPack";
 import InteractionsPage from "views/design/interactions";
+import { SecretsPageView, ProviderDetailsPageView } from "DES-ai-components/Secrets";
 
 export const miscRoutes: RouteObject[] = [
   {
     path: PATHS.DESIGN.INTERACTIONS.RELATIVE,
     element: <InteractionsPage />,
+  },
+  {
+    path: PATHS.DESIGN.SECRETS.RELATIVE,
+    element: <SecretsPageView />,
+  },
+  {
+    path: PATHS.DESIGN.SECRETS.PROVIDER.RELATIVE,
+    element: <ProviderDetailsPageView />,
   },
   {
     path: PATHS.DESKTOP.QUIT.RELATIVE,

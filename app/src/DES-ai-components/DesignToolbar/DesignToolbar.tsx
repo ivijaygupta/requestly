@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { MdOutlineAnimation } from "@react-icons/all-files/md/MdOutlineAnimation";
 import { MdOutlineDesignServices } from "@react-icons/all-files/md/MdOutlineDesignServices";
 import { MdOutlineMenuBook } from "@react-icons/all-files/md/MdOutlineMenuBook";
+import { MdOutlineVpnKey } from "@react-icons/all-files/md/MdOutlineVpnKey";
 import PATHS from "config/constants/sub/paths";
 import "./DesignToolbar.scss";
 
@@ -24,6 +25,10 @@ export const DesignToolbar: React.FC = () => {
   const isInteractionsPage =
     location.pathname === PATHS.DESIGN.INTERACTIONS.RELATIVE ||
     location.pathname === PATHS.DESIGN.INTERACTIONS.ABSOLUTE;
+
+  const isSecretsPage =
+    location.pathname.startsWith(PATHS.DESIGN.SECRETS.RELATIVE) ||
+    location.pathname.startsWith(PATHS.DESIGN.SECRETS.ABSOLUTE);
 
   // Load saved position from localStorage
   useEffect(() => {
@@ -113,6 +118,10 @@ export const DesignToolbar: React.FC = () => {
     navigate(PATHS.DESIGN.INTERACTIONS.ABSOLUTE);
   };
 
+  const handleSecretsClick = () => {
+    navigate(PATHS.DESIGN.SECRETS.ABSOLUTE);
+  };
+
   return (
     <div ref={toolbarRef} className={`design-toolbar ${isDragging ? "dragging" : ""}`} onMouseDown={handleMouseDown}>
       <div className="design-toolbar-content">
@@ -123,6 +132,15 @@ export const DesignToolbar: React.FC = () => {
         >
           <MdOutlineAnimation size={16} />
           <span>Interactions</span>
+        </button>
+
+        <button
+          className={`design-toolbar-button ${isSecretsPage ? "active" : ""}`}
+          onClick={handleSecretsClick}
+          title="Secrets"
+        >
+          <MdOutlineVpnKey size={16} />
+          <span>Secrets</span>
         </button>
 
         <button

@@ -8,7 +8,6 @@ import { MdOutlineDisplaySettings } from "@react-icons/all-files/md/MdOutlineDis
 import { RiBuildingLine } from "@react-icons/all-files/ri/RiBuildingLine";
 import { IoMdArrowBack } from "@react-icons/all-files/io/IoMdArrowBack";
 import { MdOutlineAccountBox } from "@react-icons/all-files/md/MdOutlineAccountBox";
-import { MdOutlineVpnKey } from "@react-icons/all-files/md/MdOutlineVpnKey";
 import { redirectToTraffic } from "utils/RedirectionUtils";
 import APP_CONSTANTS from "config/constants";
 //@ts-ignore
@@ -66,18 +65,6 @@ export const SettingsPrimarySidebar: React.FC = () => {
             name: "SessionBook",
             path: PATHS.SETTINGS.SESSION_BOOK.RELATIVE,
             ishidden: appMode === GLOBAL_CONSTANTS.APP_MODES.DESKTOP,
-          },
-        ],
-      },
-      {
-        id: "api_client_settings",
-        name: "API Client",
-        icon: <MdOutlineVpnKey />,
-        children: [
-          {
-            id: "secrets",
-            name: "Secrets",
-            path: PATHS.SETTINGS.SECRETS.RELATIVE,
           },
         ],
       },
