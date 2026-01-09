@@ -43,6 +43,17 @@ This repository contains the source code for Browser extension and UI applicatio
 
 Please follow the [Getting Started Guide](./getting-started.md) to get to know about the development process in this repository.
 
+## 🤖 AI-Assisted Development
+
+> **IMPORTANT:** Before starting any development with an AI agent (Cursor, Copilot, Antigravity, etc.):
+> 
+> 1. Open **[`AI_RULES.md`](./AI_RULES.md)**.
+> 2. **COPY** the entire content.
+> 3. **PASTE** it into your AI editor's "Custom Rules" or "System Prompt".
+> 
+> This is **CRITICAL** to ensure you do not break the legacy application and follow our strict design isolation protocols.
+
+
 ## Documentation
 
 We try to keep our documentation always up to date. When making changes to any UI component, please make sure that you also raise a pull request to update the corresponding documentation page to reflect latest changes.
