@@ -1,7 +1,6 @@
 import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Spin, Alert, Modal } from "antd";
-import { RQButton } from "lib/design-system-v2/components";
+import { Button, Alert, ConfirmModal, Loading } from "../../../ui";
 import { Provider, ProviderFormData } from "../../types";
 import { useSecretsStore } from "../../hooks/useSecretsStore";
 import { EmptyState } from "../EmptyState";
@@ -10,7 +9,6 @@ import { AddProviderModal } from "../AddProviderModal";
 import { MdAdd } from "@react-icons/all-files/md/MdAdd";
 import { MdOutlineVpnKey } from "@react-icons/all-files/md/MdOutlineVpnKey";
 import PATHS from "config/constants/sub/paths";
-import "./SecretsPage.scss";
 
 export const SecretsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -30,8 +28,6 @@ export const SecretsPage: React.FC = () => {
   const handleAddProvider = useCallback(
     (data: ProviderFormData) => {
       const newProvider = createProvider(data.name, data.type, data.config);
-
-      // Navigate to the new provider's details page
       navigate(`${PATHS.SETTINGS.SECRETS.RELATIVE}/${newProvider.id}`);
       setIsAddModalOpen(false);
     },
@@ -60,52 +56,47 @@ export const SecretsPage: React.FC = () => {
     setProviderToDelete(null);
   }, []);
 
-  // Loading state
   if (isLoading) {
     return (
-      <div className="secrets-page secrets-page--loading">
-        <Spin size="large" />
-        <p>Loading secrets...</p>
+      <div className="flex flex-col w-full max-w-[1200px] mx-auto p-8 animate-in fade-in duration-500">
+        <Loading loading message="Loading secrets..." />
       </div>
     );
   }
 
-  // Error state
   if (error) {
     return (
-      <div className="secrets-page">
-        <div className="secrets-page__header">
-          <h1 className="secrets-page__title">Secrets</h1>
+      <div className="flex flex-col w-full max-w-[1200px] mx-auto p-8 gap-8 animate-in fade-in duration-500">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl font-bold text-zinc-100 tracking-tight">Secrets</h1>
         </div>
         <Alert
           type="error"
           message="Error loading providers"
           description={error}
-          showIcon
-          className="secrets-page__error"
           action={
-            <RQButton type="secondary" size="small" onClick={() => window.location.reload()}>
+            <Button variant="secondary" size="sm" onClick={() => window.location.reload()}>
               Retry
-            </RQButton>
+            </Button>
           }
         />
       </div>
     );
   }
 
-  // Empty state
   if (providers.length === 0) {
     return (
-      <div className="secrets-page">
-        <div className="secrets-page__header">
-          <h1 className="secrets-page__title">Secrets</h1>
+      <div className="flex flex-col w-full max-w-[1200px] mx-auto p-8 gap-12 animate-in fade-in duration-500">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl font-bold text-zinc-100 tracking-tight">Secrets</h1>
+          <p className="text-zinc-500 text-sm">Manage your API keys and credentials through auth providers.</p>
         </div>
         <EmptyState
           title="No secrets yet"
           description="Add an auth provider to start managing API keys and secrets. Providers help organize and secure your credentials for different environments."
           actionLabel="Add provider"
           onAction={handleOpenAddModal}
-          icon={<MdOutlineVpnKey />}
+          icon={<MdOutlineVpnKey className="w-8 h-8" />}
         />
         <AddProviderModal
           isOpen={isAddModalOpen}
@@ -117,24 +108,32 @@ export const SecretsPage: React.FC = () => {
     );
   }
 
-  // Providers list
   return (
-    <div className="secrets-page">
-      <div className="secrets-page__header">
-        <div className="secrets-page__header-content">
-          <h1 className="secrets-page__title">Secrets</h1>
-          <p className="secrets-page__description">Manage your API keys and credentials through auth providers.</p>
+    <div className="flex flex-col w-full max-w-[1200px] mx-auto p-8 gap-10 animate-in fade-in duration-500">
+      <div className="flex items-center justify-between gap-4 border-b border-zinc-800 pb-8">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl font-bold text-zinc-100 tracking-tight">Secrets</h1>
+          <p className="text-zinc-500 text-sm">Manage your API keys and credentials through auth providers.</p>
         </div>
-        <RQButton type="primary" icon={<MdAdd />} onClick={handleOpenAddModal}>
+        <Button
+          variant="primary"
+          size="lg"
+          icon={<MdAdd />}
+          onClick={handleOpenAddModal}
+          className="shadow-lg shadow-indigo-500/20"
+        >
           Add provider
-        </RQButton>
+        </Button>
       </div>
 
-      <div className="secrets-page__providers-grid">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {providers.map((provider, index) => (
-          <div key={provider.id} className="secrets-page__provider-item" style={{ animationDelay: `${index * 50}ms` }}>
-            <ProviderCard provider={provider} onClick={handleProviderClick} onDelete={handleDeleteClick} />
-          </div>
+          <ProviderCard
+            key={provider.id}
+            provider={provider}
+            onClick={handleProviderClick}
+            onDelete={handleDeleteClick}
+          />
         ))}
       </div>
 
@@ -145,37 +144,35 @@ export const SecretsPage: React.FC = () => {
         testConnection={testConnection}
       />
 
-      <Modal
-        title="Delete provider"
-        open={!!providerToDelete}
-        onCancel={handleCancelDelete}
-        footer={
-          <>
-            <RQButton onClick={handleCancelDelete}>Cancel</RQButton>
-            <RQButton type="danger" onClick={handleConfirmDelete}>
-              Delete provider
-            </RQButton>
-          </>
-        }
-        className="custom-rq-modal"
-      >
-        {providerToDelete && (
-          <>
-            <p>
-              Are you sure you want to delete <strong>{providerToDelete.name}</strong>?
-            </p>
-            {providerToDelete.secrets.length > 0 && (
-              <p style={{ color: "var(--requestly-color-warning)" }}>
-                This will also delete {providerToDelete.secrets.length} secret
-                {providerToDelete.secrets.length !== 1 ? "s" : ""} stored in this provider.
+      {providerToDelete && (
+        <ConfirmModal
+          open={!!providerToDelete}
+          onClose={handleCancelDelete}
+          onConfirm={handleConfirmDelete}
+          title="Delete provider"
+          variant="destructive"
+          confirmText="Delete provider"
+          message={
+            <div className="space-y-4 py-2">
+              <p className="text-zinc-300">
+                Are you sure you want to delete{" "}
+                <span className="font-semibold text-white">"{providerToDelete.name}"</span>?
               </p>
-            )}
-            <p style={{ color: "var(--requestly-color-text-subtle)", marginBottom: 0 }}>
-              This action cannot be undone.
-            </p>
-          </>
-        )}
-      </Modal>
+              {providerToDelete.secrets.length > 0 && (
+                <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                  <p className="text-sm text-red-400 font-medium leading-relaxed">
+                    This will also permanently delete {providerToDelete.secrets.length} secret
+                    {providerToDelete.secrets.length !== 1 ? "s" : ""} associated with this provider.
+                  </p>
+                </div>
+              )}
+              <p className="text-xs text-zinc-500 italic">
+                This action is irreversible and will break any requests dependent on these secrets.
+              </p>
+            </div>
+          }
+        />
+      )}
     </div>
   );
 };

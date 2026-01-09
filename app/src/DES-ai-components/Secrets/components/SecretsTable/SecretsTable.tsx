@@ -1,7 +1,5 @@
 import React, { useState, useCallback, useMemo, useEffect } from "react";
-import { Input, Tooltip, Checkbox, Spin, Select } from "antd";
-import { RQButton } from "lib/design-system-v2/components";
-import { ContentListTable } from "componentsV2/ContentList";
+import { Button, Input, Checkbox, Tooltip, MultiSelect, Spinner } from "../../../ui";
 import {
   Secret,
   SecretRow,
@@ -19,8 +17,6 @@ import { MdVisibilityOff } from "@react-icons/all-files/md/MdVisibilityOff";
 import { MdWarning } from "@react-icons/all-files/md/MdWarning";
 import { MdRefresh } from "@react-icons/all-files/md/MdRefresh";
 import { MdHelpOutline } from "@react-icons/all-files/md/MdHelpOutline";
-import { LoadingOutlined } from "@ant-design/icons";
-import "./SecretsTable.scss";
 
 interface SecretsTableProps {
   secrets: Secret[];
@@ -84,10 +80,9 @@ export const SecretsTable: React.FC<SecretsTableProps> = ({
   // Update rows and notify parent
   const updateRows = useCallback(
     (newRows: SecretRow[]) => {
-      // Mark rows with validation errors
       const validatedRows = newRows.map((row) => {
         const rowName = row.name || "";
-        const isDuplicate = rowName.trim() && duplicateNames.has(rowName.toLowerCase());
+        const isDuplicate = !!(rowName.trim() && duplicateNames.has(rowName.toLowerCase()));
 
         return {
           ...row,
@@ -119,7 +114,6 @@ export const SecretsTable: React.FC<SecretsTableProps> = ({
     (rowId: string) => {
       const newRows = rows.filter((row) => row.id !== rowId);
 
-      // Always keep at least one empty row
       if (newRows.length === 0 && !isReadOnly) {
         updateRows([createDefaultSecret(providerType)]);
       } else {
@@ -141,225 +135,212 @@ export const SecretsTable: React.FC<SecretsTableProps> = ({
     });
   }, []);
 
-  // Generate table columns from column definitions
-  const columns = useMemo(() => {
-    const tableColumns = columnDefs.map((colDef: SecretColumnDefinition) => {
-      const column: any = {
-        title: (
-          <div className="secrets-table__column-title">
-            {colDef.title}
-            {colDef.helpText && (
-              <Tooltip title={colDef.helpText}>
-                <MdHelpOutline className="secrets-table__help-icon" />
-              </Tooltip>
-            )}
-          </div>
-        ),
-        dataIndex: colDef.dataIndex,
-        key: colDef.key,
-        width: colDef.width,
-      };
+  // Render cell based on column type
+  const renderCell = useCallback(
+    (colDef: SecretColumnDefinition, record: SecretRow) => {
+      const value = (record as any)[colDef.dataIndex];
+      const recordName = record.name || "";
+      const isDuplicate =
+        colDef.dataIndex === "name" && !!(recordName.trim() && duplicateNames.has(recordName.toLowerCase()));
 
-      // Render based on column type
       switch (colDef.type) {
         case "checkbox":
-          column.render = (value: boolean, record: SecretRow) => (
-            <Checkbox
-              checked={value}
-              onChange={(e) => handleCellChange(record.id, colDef.dataIndex as keyof SecretRow, e.target.checked)}
+          return (
+            <div className="flex items-center justify-center">
+              <Checkbox
+                checked={value}
+                onChange={(checked) => handleCellChange(record.id, colDef.dataIndex as keyof SecretRow, checked)}
+                disabled={isReadOnly}
+              />
+            </div>
+          );
+
+        case "password": {
+          const isVisible = visibleSecrets.has(record.id);
+          return (
+            <Input
+              value={value || ""}
+              onChange={(e) => handleCellChange(record.id, colDef.dataIndex as keyof SecretRow, e.target.value)}
+              placeholder={colDef.placeholder}
               disabled={isReadOnly}
+              type={isVisible ? "text" : "password"}
+              suffixIcon={
+                <button
+                  type="button"
+                  onClick={() => toggleSecretVisibility(record.id)}
+                  className="p-1 text-zinc-500 hover:text-zinc-100 transition-colors"
+                >
+                  {isVisible ? <MdVisibilityOff className="w-4 h-4" /> : <MdVisibility className="w-4 h-4" />}
+                </button>
+              }
             />
           );
-          break;
+        }
 
-        case "password":
-          column.render = (value: string, record: SecretRow) => {
-            const isVisible = visibleSecrets.has(record.id);
+        case "readonly": {
+          const isVisible = visibleSecrets.has(record.id);
+          const hasValue = value && value.trim();
+
+          if (record.isFetching) {
             return (
-              <div className="secrets-table__cell secrets-table__value-cell">
-                <Input
-                  value={value || ""}
-                  onChange={(e) => handleCellChange(record.id, colDef.dataIndex as keyof SecretRow, e.target.value)}
-                  placeholder={colDef.placeholder}
-                  disabled={isReadOnly}
-                  type={isVisible ? "text" : "password"}
-                  className="secrets-table__input secrets-table__value-input"
-                />
-                <RQButton
-                  type="transparent"
-                  icon={isVisible ? <MdVisibilityOff /> : <MdVisibility />}
+              <div className="flex items-center gap-2 text-zinc-500 text-xs">
+                <Spinner size="sm" />
+                <span>Fetching...</span>
+              </div>
+            );
+          }
+
+          if (!hasValue) {
+            return <span className="text-zinc-600 text-xs italic">Not fetched</span>;
+          }
+
+          return (
+            <Input
+              value={isVisible ? value : "••••••••"}
+              disabled
+              className="bg-zinc-900/30 border-dashed border-zinc-800"
+              suffixIcon={
+                <button
+                  type="button"
                   onClick={() => toggleSecretVisibility(record.id)}
-                  className="secrets-table__visibility-btn"
-                />
-              </div>
-            );
-          };
-          break;
-
-        case "readonly":
-          column.render = (value: string, record: SecretRow) => {
-            const isVisible = visibleSecrets.has(record.id);
-            const hasValue = value && value.trim();
-
-            return (
-              <div className="secrets-table__cell secrets-table__readonly-cell">
-                {record.isFetching ? (
-                  <span className="secrets-table__fetching">
-                    <LoadingOutlined spin />
-                  </span>
-                ) : hasValue ? (
-                  <>
-                    <Input
-                      value={isVisible ? value : "••••••••"}
-                      disabled
-                      className="secrets-table__input secrets-table__readonly-input"
-                    />
-                    <RQButton
-                      type="transparent"
-                      icon={isVisible ? <MdVisibilityOff /> : <MdVisibility />}
-                      onClick={() => toggleSecretVisibility(record.id)}
-                      className="secrets-table__visibility-btn"
-                    />
-                  </>
-                ) : (
-                  <span className="secrets-table__empty-value">Not fetched</span>
-                )}
-              </div>
-            );
-          };
-          break;
+                  className="p-1 text-zinc-500 hover:text-zinc-100 transition-colors"
+                >
+                  {isVisible ? <MdVisibilityOff className="w-4 h-4" /> : <MdVisibility className="w-4 h-4" />}
+                </button>
+              }
+            />
+          );
+        }
 
         case "select":
-          column.render = (value: string[], record: SecretRow) => {
-            return (
-              <div className="secrets-table__cell">
-                <Select
-                  mode="multiple"
-                  value={value || []}
-                  onChange={(selectedValues) =>
-                    handleCellChange(record.id, colDef.dataIndex as keyof SecretRow, selectedValues)
-                  }
-                  placeholder={colDef.placeholder || "Select environments"}
-                  disabled={isReadOnly}
-                  className="secrets-table__select"
-                  options={colDef.options || ENVIRONMENT_OPTIONS}
-                  maxTagCount="responsive"
-                  style={{ width: "100%" }}
-                />
-              </div>
-            );
-          };
-          break;
+          return (
+            <MultiSelect
+              value={value || []}
+              onChange={(selectedValues) =>
+                handleCellChange(record.id, colDef.dataIndex as keyof SecretRow, selectedValues)
+              }
+              placeholder={colDef.placeholder || "Select environments"}
+              disabled={isReadOnly}
+              options={
+                colDef.options?.map((opt) => ({ value: opt.value, label: opt.label })) ||
+                ENVIRONMENT_OPTIONS.map((opt) => ({ value: opt.value, label: opt.label }))
+              }
+              maxTagCount={1}
+            />
+          );
 
         case "text":
         default:
-          column.render = (value: string, record: SecretRow) => {
-            const recordName = record.name || "";
-            const isDuplicate =
-              colDef.dataIndex === "name" && recordName.trim() && duplicateNames.has(recordName.toLowerCase());
-
-            return (
-              <div className="secrets-table__cell">
-                <Input
-                  value={value || ""}
-                  onChange={(e) => handleCellChange(record.id, colDef.dataIndex as keyof SecretRow, e.target.value)}
-                  placeholder={colDef.placeholder}
-                  disabled={isReadOnly}
-                  status={isDuplicate ? "error" : undefined}
-                  className="secrets-table__input"
-                />
-                {isDuplicate && (
-                  <Tooltip title="Duplicate name will cause conflicts">
-                    <MdWarning className="secrets-table__warning-icon" />
-                  </Tooltip>
-                )}
-              </div>
-            );
-          };
+          return (
+            <div className="flex items-center gap-2 w-full">
+              <Input
+                value={value || ""}
+                onChange={(e) => handleCellChange(record.id, colDef.dataIndex as keyof SecretRow, e.target.value)}
+                placeholder={colDef.placeholder}
+                disabled={isReadOnly}
+                error={isDuplicate}
+                className="flex-1"
+              />
+              {isDuplicate && (
+                <Tooltip content="Duplicate name will cause conflicts">
+                  <MdWarning className="text-yellow-500 w-4 h-4 flex-shrink-0" />
+                </Tooltip>
+              )}
+            </div>
+          );
       }
+    },
+    [handleCellChange, toggleSecretVisibility, visibleSecrets, duplicateNames, isReadOnly]
+  );
 
-      return column;
-    });
-
-    // Add actions column
-    tableColumns.push({
-      title: "",
-      key: "actions",
-      width: 50,
-      render: (_: unknown, record: SecretRow) => (
-        <div className="secrets-table__actions">
-          {!isReadOnly && (
-            <RQButton
-              type="transparent"
-              icon={<MdDelete />}
-              onClick={() => handleDeleteRow(record.id)}
-              className="secrets-table__delete-btn"
-            />
-          )}
-        </div>
-      ),
-    });
-
-    return tableColumns;
-  }, [
-    columnDefs,
-    handleCellChange,
-    handleDeleteRow,
-    toggleSecretVisibility,
-    visibleSecrets,
-    duplicateNames,
-    isReadOnly,
-  ]);
-
-  // Determine if we should show the Fetch Secrets button
   const showFetchButton = providerType !== ProviderType.GENERIC && onFetchSecrets;
   const usageText = getSecretsUsageText(providerName);
 
   return (
-    <div className="secrets-table">
-      <ContentListTable
-        id="secrets-list"
-        className="secrets-table__table"
-        columns={columns}
-        data={rows}
-        rowKey="id"
-        locale={{
-          emptyText: (
-            <div className="secrets-table__empty">
-              <p>No secrets configured. Add secrets to fetch from your provider.</p>
-            </div>
-          ),
-        }}
-        bordered
-        scroll={{ y: "calc(100vh - 380px)" }}
-        footer={
-          isReadOnly
-            ? undefined
-            : () => (
-                <div className="secrets-table__footer">
-                  <div className="secrets-table__footer-left">
-                    <RQButton icon={<MdAdd />} size="small" onClick={handleAddRow}>
-                      Add Secret
-                    </RQButton>
+    <div className="flex flex-col w-full h-full overflow-hidden bg-zinc-900/50 border border-zinc-800 rounded-lg">
+      <div className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent">
+        <table className="w-full border-collapse">
+          <thead className="sticky top-0 z-10 bg-zinc-900 border-b border-zinc-800">
+            <tr>
+              {columnDefs.map((col) => (
+                <th
+                  key={col.key}
+                  className="px-4 py-3 text-left text-[11px] font-bold text-zinc-500 uppercase tracking-wider"
+                  style={{ width: col.width || undefined }}
+                >
+                  <div className="flex items-center gap-1.5">
+                    {col.title}
+                    {col.helpText && (
+                      <Tooltip content={col.helpText}>
+                        <MdHelpOutline className="w-3.5 h-3.5 text-zinc-600 hover:text-zinc-400 cursor-help" />
+                      </Tooltip>
+                    )}
                   </div>
-                  {showFetchButton && (
-                    <div className="secrets-table__footer-right">
-                      <RQButton
-                        type="primary"
-                        icon={isFetching ? <LoadingOutlined spin /> : <MdRefresh />}
-                        size="small"
-                        onClick={onFetchSecrets}
-                        disabled={isFetching}
+                </th>
+              ))}
+              <th className="px-4 py-3 w-[50px]" />
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-zinc-800/50">
+            {rows.length === 0 ? (
+              <tr>
+                <td colSpan={columnDefs.length + 1} className="px-4 py-12 text-center text-sm text-zinc-500 italic">
+                  No secrets configured. Add secrets to fetch from your provider.
+                </td>
+              </tr>
+            ) : (
+              rows.map((row) => (
+                <tr key={row.id} className="group hover:bg-zinc-800/20 transition-colors">
+                  {columnDefs.map((col) => (
+                    <td key={col.key} className="px-4 py-2 align-middle" style={{ width: col.width || undefined }}>
+                      {renderCell(col, row)}
+                    </td>
+                  ))}
+                  <td className="px-4 py-2 align-middle text-right">
+                    {!isReadOnly && (
+                      <button
+                        onClick={() => handleDeleteRow(row.id)}
+                        className="p-1.5 text-zinc-500 hover:text-red-400 hover:bg-red-400/10 rounded transition-all opacity-0 group-hover:opacity-100"
                       >
-                        {isFetching ? "Fetching..." : "Fetch Secrets"}
-                      </RQButton>
-                    </div>
-                  )}
-                </div>
-              )
-        }
-      />
-      <div className="secrets-table__usage-hint">{usageText}</div>
+                        <MdDelete className="w-4 h-4" />
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="flex items-center justify-between px-4 py-3 bg-zinc-900/80 border-t border-zinc-800">
+        <div className="flex items-center gap-3">
+          {!isReadOnly && (
+            <Button
+              variant="ghost"
+              size="sm"
+              icon={<MdAdd />}
+              onClick={handleAddRow}
+              className="text-zinc-400 hover:text-zinc-100"
+            >
+              Add Secret
+            </Button>
+          )}
+          {showFetchButton && (
+            <Button
+              variant="secondary"
+              size="sm"
+              loading={isFetching}
+              icon={!isFetching && <MdRefresh />}
+              onClick={onFetchSecrets}
+              disabled={isFetching}
+            >
+              {isFetching ? "Fetching..." : "Fetch Secrets"}
+            </Button>
+          )}
+        </div>
+        <div className="text-[11px] font-mono text-zinc-500 bg-zinc-800/50 px-2 py-1 rounded">{usageText}</div>
+      </div>
     </div>
   );
 };

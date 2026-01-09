@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useMemo, useEffect } from "react";
-import { Modal, Input, Select, Form, Alert, Tooltip } from "antd";
-import { RQButton } from "lib/design-system-v2/components";
+import { Button, Input, Select, Modal, Alert, Tooltip, Spinner } from "../../../ui";
 import {
   ProviderType,
   PROVIDER_TYPE_INFO,
@@ -10,11 +9,8 @@ import {
   FieldDefinition,
   getDefaultConfig,
 } from "../../types";
-import { MdCheckCircle } from "@react-icons/all-files/md/MdCheckCircle";
-import { MdError } from "@react-icons/all-files/md/MdError";
 import { MdRefresh } from "@react-icons/all-files/md/MdRefresh";
 import { MdHelpOutline } from "@react-icons/all-files/md/MdHelpOutline";
-import "./AddProviderModal.scss";
 
 interface AddProviderModalProps {
   isOpen: boolean;
@@ -26,7 +22,6 @@ interface AddProviderModalProps {
 type ConnectionStatus = "idle" | "testing" | "success" | "error";
 
 export const AddProviderModal: React.FC<AddProviderModalProps> = ({ isOpen, onClose, onSubmit, testConnection }) => {
-  const [form] = Form.useForm();
   const [providerName, setProviderName] = useState("");
   const [providerType, setProviderType] = useState<ProviderType>(ProviderType.AWS_SECRETS_MANAGER);
   const [config, setConfig] = useState<ProviderConfig>(getDefaultConfig(ProviderType.AWS_SECRETS_MANAGER));
@@ -43,8 +38,7 @@ export const AddProviderModal: React.FC<AddProviderModalProps> = ({ isOpen, onCl
     setConfig(newConfig);
     setConnectionStatus("idle");
     setConnectionMessage("");
-    form.setFieldsValue(newConfig);
-  }, [providerType, form]);
+  }, [providerType]);
 
   // Reset form when modal opens
   useEffect(() => {
@@ -54,9 +48,8 @@ export const AddProviderModal: React.FC<AddProviderModalProps> = ({ isOpen, onCl
       setConfig(getDefaultConfig(ProviderType.AWS_SECRETS_MANAGER));
       setConnectionStatus("idle");
       setConnectionMessage("");
-      form.resetFields();
     }
-  }, [isOpen, form]);
+  }, [isOpen]);
 
   // Check if a field should be visible based on showWhen condition
   const isFieldVisible = useCallback(
@@ -106,7 +99,6 @@ export const AddProviderModal: React.FC<AddProviderModalProps> = ({ isOpen, onCl
     setIsSubmitting(true);
 
     try {
-      // Small delay for UX feedback
       await new Promise((resolve) => setTimeout(resolve, 200));
 
       onSubmit({
@@ -125,9 +117,8 @@ export const AddProviderModal: React.FC<AddProviderModalProps> = ({ isOpen, onCl
     setConfig(getDefaultConfig(ProviderType.AWS_SECRETS_MANAGER));
     setConnectionStatus("idle");
     setConnectionMessage("");
-    form.resetFields();
     onClose();
-  }, [onClose, form]);
+  }, [onClose]);
 
   // Render a single field based on its definition
   const renderField = useCallback(
@@ -136,63 +127,41 @@ export const AddProviderModal: React.FC<AddProviderModalProps> = ({ isOpen, onCl
 
       const value = ((config as Record<string, unknown>)[field.name] as string) || "";
 
-      const labelWithHelp = field.helpText ? (
-        <span className="add-provider-modal__label-with-help">
-          {field.label}
-          <Tooltip title={field.helpText}>
-            <MdHelpOutline className="add-provider-modal__help-icon" />
-          </Tooltip>
-        </span>
-      ) : (
-        field.label
+      return (
+        <div key={field.name} className="flex flex-col gap-1.5">
+          <label className="text-xs font-semibold text-zinc-400 flex items-center gap-1.5 px-0.5">
+            {field.label}
+            {field.required && <span className="text-red-500">*</span>}
+            {field.helpText && (
+              <Tooltip content={field.helpText}>
+                <span className="text-zinc-500 hover:text-zinc-300 transition-colors cursor-help">
+                  <MdHelpOutline className="w-3.5 h-3.5" />
+                </span>
+              </Tooltip>
+            )}
+          </label>
+          {field.type === "select" ? (
+            <Select
+              value={value}
+              onChange={(val) => handleConfigChange(field.name, val)}
+              placeholder={field.placeholder}
+              options={
+                field.options?.map((opt) => ({
+                  value: opt.value,
+                  label: opt.label,
+                })) || []
+              }
+            />
+          ) : (
+            <Input
+              type={field.type === "password" ? "password" : "text"}
+              value={value}
+              onChange={(e) => handleConfigChange(field.name, e.target.value)}
+              placeholder={field.placeholder}
+            />
+          )}
+        </div>
       );
-
-      switch (field.type) {
-        case "select":
-          return (
-            <Form.Item key={field.name} label={labelWithHelp} required={field.required}>
-              <Select
-                value={value}
-                onChange={(val) => handleConfigChange(field.name, val)}
-                placeholder={field.placeholder}
-                className="add-provider-modal__select"
-              >
-                {field.options?.map((opt) => (
-                  <Select.Option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
-          );
-
-        case "password":
-          return (
-            <Form.Item key={field.name} label={labelWithHelp} required={field.required}>
-              <Input.Password
-                value={value}
-                onChange={(e) => handleConfigChange(field.name, e.target.value)}
-                placeholder={field.placeholder}
-                className="add-provider-modal__input"
-              />
-            </Form.Item>
-          );
-
-        case "url":
-        case "text":
-        default:
-          return (
-            <Form.Item key={field.name} label={labelWithHelp} required={field.required}>
-              <Input
-                value={value}
-                onChange={(e) => handleConfigChange(field.name, e.target.value)}
-                placeholder={field.placeholder}
-                type={field.type === "url" ? "url" : "text"}
-                className="add-provider-modal__input"
-              />
-            </Form.Item>
-          );
-      }
     },
     [config, handleConfigChange, isFieldVisible]
   );
@@ -221,91 +190,89 @@ export const AddProviderModal: React.FC<AddProviderModalProps> = ({ isOpen, onCl
 
   return (
     <Modal
-      title={null}
       open={isOpen}
-      onCancel={handleCancel}
-      footer={null}
-      width={520}
-      className="add-provider-modal custom-rq-modal"
-      destroyOnClose
+      onClose={handleCancel}
+      title="Add Auth Provider"
+      description="Configure a new provider to manage your API secrets and credentials."
+      width="520px"
+      footer={
+        <>
+          <Button variant="ghost" onClick={handleCancel}>
+            Cancel
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={handleTestConnection}
+            disabled={!isFormValid || connectionStatus === "testing"}
+            loading={connectionStatus === "testing"}
+          >
+            Test Connection
+          </Button>
+          <Button variant="primary" onClick={handleSubmit} loading={isSubmitting} disabled={!isFormValid}>
+            Add Provider
+          </Button>
+        </>
+      }
     >
-      <div className="add-provider-modal__header">
-        <h3>Add Auth Provider</h3>
-        <p>Configure a new provider to manage your API secrets and credentials.</p>
-      </div>
-
-      <Form form={form} layout="vertical" className="add-provider-modal__form">
-        <Form.Item label="Provider Name" required>
+      <div className="space-y-6">
+        {/* Provider Name */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-semibold text-zinc-400 px-0.5">
+            Provider Name<span className="text-red-500 ml-0.5">*</span>
+          </label>
           <Input
             value={providerName}
             onChange={(e) => setProviderName(e.target.value)}
             placeholder="e.g., Production AWS, Dev Environment"
-            className="add-provider-modal__input"
             autoFocus
           />
-        </Form.Item>
+        </div>
 
-        <Form.Item label="Provider Type" required>
+        {/* Provider Type */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-semibold text-zinc-400 px-0.5">
+            Provider Type<span className="text-red-500 ml-0.5">*</span>
+          </label>
           <Select
             value={providerType}
             onChange={(value) => setProviderType(value as ProviderType)}
-            className="add-provider-modal__select"
-            optionLabelProp="label"
-          >
-            {providerTypeOptions.map((opt) => (
-              <Select.Option key={opt.value} value={opt.value} label={opt.label}>
-                <div className="add-provider-modal__type-option">
-                  <span className="add-provider-modal__type-label">{opt.label}</span>
-                  <span className="add-provider-modal__type-desc">{opt.description}</span>
-                </div>
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
-
-        <div className="add-provider-modal__config-section">
-          <div className="add-provider-modal__config-title">{PROVIDER_TYPE_INFO[providerType].label} Configuration</div>
-          {fields.map(renderField)}
+            options={providerTypeOptions}
+          />
         </div>
 
-        {connectionStatus !== "idle" && (
-          <Alert
-            type={connectionStatus === "success" ? "success" : connectionStatus === "error" ? "error" : "info"}
-            showIcon
-            icon={
-              connectionStatus === "testing" ? null : connectionStatus === "success" ? <MdCheckCircle /> : <MdError />
-            }
-            message={
-              connectionStatus === "testing" ? (
-                <span className="add-provider-modal__testing">Testing connection...</span>
-              ) : (
-                connectionMessage
-              )
-            }
-            action={
-              connectionStatus === "error" && (
-                <RQButton type="transparent" size="small" icon={<MdRefresh />} onClick={handleTestConnection}>
-                  Retry
-                </RQButton>
-              )
-            }
-            className="add-provider-modal__status"
-          />
-        )}
-      </Form>
+        {/* Configuration Section */}
+        <div className="pt-2">
+          <div className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-4 px-0.5 border-b border-zinc-800 pb-2">
+            {PROVIDER_TYPE_INFO[providerType].label} Configuration
+          </div>
+          <div className="space-y-4">{fields.map(renderField)}</div>
+        </div>
 
-      <div className="add-provider-modal__footer">
-        <RQButton onClick={handleCancel}>Cancel</RQButton>
-        <RQButton
-          onClick={handleTestConnection}
-          disabled={!isFormValid || connectionStatus === "testing"}
-          loading={connectionStatus === "testing"}
-        >
-          Test Connection
-        </RQButton>
-        <RQButton type="primary" onClick={handleSubmit} loading={isSubmitting} disabled={!isFormValid}>
-          Add Provider
-        </RQButton>
+        {/* Connection Status */}
+        {connectionStatus !== "idle" && (
+          <div className="animate-in fade-in slide-in-from-top-2 duration-200">
+            <Alert
+              type={connectionStatus === "success" ? "success" : connectionStatus === "error" ? "error" : "info"}
+              message={
+                connectionStatus === "testing" ? (
+                  <span className="flex items-center gap-2">
+                    <Spinner size="sm" className="text-current" />
+                    Testing connection...
+                  </span>
+                ) : (
+                  connectionMessage
+                )
+              }
+              action={
+                connectionStatus === "error" ? (
+                  <Button variant="ghost" size="sm" icon={<MdRefresh />} onClick={handleTestConnection}>
+                    Retry
+                  </Button>
+                ) : undefined
+              }
+            />
+          </div>
+        )}
       </div>
     </Modal>
   );

@@ -7,6 +7,8 @@ import { sentryVitePlugin } from "@sentry/vite-plugin";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
 import { getThemeVariables } from "antd/dist/theme";
 import { theme } from "./src/lib/design-system/theme";
+import tailwindcss from "@tailwindcss/postcss";
+import autoprefixer from "autoprefixer";
 
 // Either this with vite.config.mjs file or non top-level-import like below
 // import { viteStaticCopy } from "vite-plugin-static-copy";
@@ -87,6 +89,9 @@ const config = async ({ mode }) => {
       },
     },
     css: {
+      postcss: {
+        plugins: [tailwindcss, autoprefixer],
+      },
       preprocessorOptions: {
         less: {
           javascriptEnabled: true,

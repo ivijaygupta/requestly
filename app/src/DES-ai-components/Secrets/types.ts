@@ -88,6 +88,8 @@ export interface BaseSecret {
   environments?: string[]; // Environments where this secret is applicable
   createdAt: number;
   updatedAt: number;
+  description?: string; // Optional description
+  key?: string; // Legacy/Optional key field (often maps to name)
 }
 
 // AWS Secret - references AWS Secrets Manager by Name/ARN
@@ -238,7 +240,7 @@ export interface FieldDefinition {
   placeholder?: string;
   required?: boolean;
   helpText?: string;
-  options?: { value: string; label: string }[];
+  options?: readonly { value: string; label: string }[];
   showWhen?: {
     field: string;
     value: string | string[];
@@ -474,7 +476,11 @@ export const getConfigSummary = (type: ProviderType, config: ProviderConfig): st
       if (hcConfig.vaultType === HashiCorpVaultType.CLOUD) {
         return "HCP Vault Secrets";
       }
-      return hcConfig.serverUrl ? `Server: ${new URL(hcConfig.serverUrl).hostname}` : "Vault Server";
+      try {
+        return hcConfig.serverUrl ? `Server: ${new URL(hcConfig.serverUrl).hostname}` : "Vault Server";
+      } catch (e) {
+        return "Vault Server";
+      }
     }
     case ProviderType.GENERIC:
     default:
@@ -492,7 +498,7 @@ export interface SecretColumnDefinition {
   width?: number | string;
   required?: boolean;
   helpText?: string;
-  options?: { value: string; label: string }[];
+  options?: readonly { value: string; label: string }[];
 }
 
 // AWS Secret columns - based on Bruno's AWS Secrets Manager UI

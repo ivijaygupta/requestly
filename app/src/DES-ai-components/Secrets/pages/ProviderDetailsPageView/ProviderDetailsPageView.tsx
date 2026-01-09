@@ -1,8 +1,7 @@
 import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Input, Spin, Modal, Alert } from "antd";
-import { RQButton } from "lib/design-system-v2/components";
-import { Provider, SecretRow, Secret, ProviderType, PROVIDER_TYPE_INFO } from "../../types";
+import { Button, Alert, ConfirmModal, Loading } from "../../../ui";
+import { SecretRow, Secret, ProviderType, PROVIDER_TYPE_INFO } from "../../types";
 import { useSecretsStore } from "../../hooks/useSecretsStore";
 import { SecretsTable } from "../../components/SecretsTable";
 import { EmptyState } from "../../components/EmptyState";
@@ -10,7 +9,6 @@ import { MdArrowBack } from "@react-icons/all-files/md/MdArrowBack";
 import { MdOutlineSearch } from "@react-icons/all-files/md/MdOutlineSearch";
 import { MdDelete } from "@react-icons/all-files/md/MdDelete";
 import PATHS from "config/constants/sub/paths";
-import "./ProviderDetailsPageView.scss";
 
 export const ProviderDetailsPageView: React.FC = () => {
   const navigate = useNavigate();
@@ -24,6 +22,7 @@ export const ProviderDetailsPageView: React.FC = () => {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [unsavedChangesModal, setUnsavedChangesModal] = useState(false);
 
   // Find the current provider
   const provider = useMemo(() => {
@@ -41,13 +40,7 @@ export const ProviderDetailsPageView: React.FC = () => {
 
   const handleBack = useCallback(() => {
     if (hasUnsavedChanges) {
-      Modal.confirm({
-        title: "Unsaved changes",
-        content: "You have unsaved changes. Are you sure you want to leave?",
-        okText: "Leave",
-        cancelText: "Stay",
-        onOk: () => navigate(PATHS.DESIGN.SECRETS.ABSOLUTE),
-      });
+      setUnsavedChangesModal(true);
     } else {
       navigate(PATHS.DESIGN.SECRETS.ABSOLUTE);
     }
@@ -59,7 +52,6 @@ export const ProviderDetailsPageView: React.FC = () => {
     setSaveError(null);
   }, []);
 
-  // Simulated fetch secrets handler
   const handleFetchSecrets = useCallback(async () => {
     if (!provider) return;
 
@@ -125,7 +117,6 @@ export const ProviderDetailsPageView: React.FC = () => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 300));
 
-      // Convert SecretRow to Secret format
       const now = Date.now();
       const convertedSecrets: Secret[] = secretsToSave.map((s) => {
         const baseSecret = {
@@ -190,16 +181,15 @@ export const ProviderDetailsPageView: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="provider-details-page provider-details-page--loading">
-        <Spin size="large" />
-        <p>Loading provider...</p>
+      <div className="flex flex-col w-full h-full max-w-[1200px] mx-auto p-8 gap-8 animate-in fade-in duration-500">
+        <Loading loading message="Loading provider..." />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="provider-details-page">
+      <div className="flex flex-col w-full h-full max-w-[1200px] mx-auto p-8 gap-8 animate-in fade-in duration-500">
         <EmptyState
           title="Error loading provider"
           description={error}
@@ -212,7 +202,7 @@ export const ProviderDetailsPageView: React.FC = () => {
 
   if (!provider) {
     return (
-      <div className="provider-details-page">
+      <div className="flex flex-col w-full h-full max-w-[1200px] mx-auto p-8 gap-8 animate-in fade-in duration-500">
         <EmptyState
           title="Provider not found"
           description="The provider you're looking for doesn't exist or has been deleted."
@@ -226,29 +216,33 @@ export const ProviderDetailsPageView: React.FC = () => {
   const typeInfo = PROVIDER_TYPE_INFO[provider.type];
 
   return (
-    <div className="provider-details-page">
-      <div className="provider-details-page__header">
-        <div className="provider-details-page__header-left">
-          <RQButton
-            type="transparent"
-            icon={<MdArrowBack />}
+    <div className="flex flex-col w-full h-full max-w-[1200px] mx-auto p-8 gap-8 animate-in fade-in duration-500 overflow-hidden">
+      {/* Header */}
+      <div className="flex items-start justify-between gap-4 border-b border-zinc-800 pb-8">
+        <div className="flex items-center gap-5 min-w-0">
+          <button
             onClick={handleBack}
-            className="provider-details-page__back-btn"
-          />
+            className="p-2 rounded-full text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-all"
+          >
+            <MdArrowBack className="w-5 h-5" />
+          </button>
+
           <div
-            className="provider-details-page__icon"
+            className="flex items-center justify-center w-12 h-12 rounded-lg border-2 font-bold text-xs shrink-0"
             style={{
               backgroundColor: typeInfo.bgColor,
               borderColor: typeInfo.color,
+              color: typeInfo.color,
             }}
           >
-            <span style={{ color: typeInfo.color, fontWeight: 800 }}>{typeInfo.shortLabel}</span>
+            {typeInfo.shortLabel}
           </div>
-          <div className="provider-details-page__info">
-            <h2 className="provider-details-page__title">{provider.name}</h2>
-            <div className="provider-details-page__meta">
+
+          <div className="flex flex-col gap-1 min-w-0">
+            <h2 className="text-2xl font-bold text-zinc-100 tracking-tight truncate">{provider.name}</h2>
+            <div className="flex items-center gap-2">
               <span
-                className="provider-details-page__type"
+                className="px-2 py-0.5 rounded-full border text-[10px] uppercase tracking-wider font-bold"
                 style={{
                   color: typeInfo.color,
                   backgroundColor: typeInfo.bgColor,
@@ -259,89 +253,114 @@ export const ProviderDetailsPageView: React.FC = () => {
               </span>
               {provider.region && (
                 <>
-                  <span className="provider-details-page__separator">•</span>
-                  <span className="provider-details-page__region">{provider.region}</span>
+                  <span className="text-zinc-700 select-none">•</span>
+                  <span className="text-zinc-500 text-xs font-mono">{provider.region}</span>
                 </>
               )}
             </div>
           </div>
         </div>
 
-        <div className="provider-details-page__actions">
-          <RQButton
-            type="transparent"
-            icon={<MdDelete />}
-            onClick={() => setDeleteModalVisible(true)}
-            className="provider-details-page__delete-btn"
-          >
-            Delete
-          </RQButton>
-        </div>
+        <Button
+          variant="ghost"
+          icon={<MdDelete />}
+          onClick={() => setDeleteModalVisible(true)}
+          className="text-zinc-500 hover:text-red-400 hover:bg-red-400/10"
+        >
+          Delete provider
+        </Button>
       </div>
 
-      <div className="provider-details-page__toolbar">
-        <Input
-          placeholder="Search secrets..."
-          prefix={<MdOutlineSearch />}
-          value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
-          className="provider-details-page__search"
-          allowClear
-        />
+      {/* Toolbar */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="relative flex-1 max-w-md">
+          <MdOutlineSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+          <input
+            type="text"
+            placeholder="Search secrets..."
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            className="w-full bg-zinc-900 border border-zinc-800 rounded-lg pl-10 pr-4 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+          />
+        </div>
 
-        <div className="provider-details-page__save-section">
+        <div className="flex items-center gap-4">
           {hasUnsavedChanges && (
-            <div className="provider-details-page__unsaved-indicator">
-              <span className="provider-details-page__unsaved-dot" />
+            <div className="flex items-center gap-2 text-amber-500 text-xs font-medium animate-pulse">
+              <span className="w-1.5 h-1.5 rounded-full bg-current" />
               Unsaved changes
             </div>
           )}
-          <RQButton type="primary" onClick={handleSave} loading={isSaving} disabled={!hasUnsavedChanges || isFetching}>
-            {isSaving ? "Saving..." : "Save secrets"}
-          </RQButton>
+          <Button
+            variant="primary"
+            size="lg"
+            onClick={handleSave}
+            loading={isSaving}
+            disabled={!hasUnsavedChanges || isFetching}
+            className="shadow-lg shadow-indigo-500/20"
+          >
+            {isSaving ? "Saving..." : "Save changes"}
+          </Button>
         </div>
       </div>
 
+      {/* Error Alert */}
       {saveError && (
         <Alert
           type="error"
           message={saveError}
-          showIcon
           closable
           onClose={() => setSaveError(null)}
-          className="provider-details-page__error"
+          className="animate-in slide-in-from-top-2"
         />
       )}
 
-      <SecretsTable
-        secrets={searchValue ? filteredSecrets : pendingSecrets}
-        providerType={provider.type}
-        providerName={provider.name}
-        onChange={handleSecretsChange}
-        onFetchSecrets={handleFetchSecrets}
-        isFetching={isFetching}
+      {/* Secrets Table */}
+      <div className="flex-1 min-h-0 min-w-0">
+        <SecretsTable
+          secrets={searchValue ? filteredSecrets : pendingSecrets}
+          providerType={provider.type}
+          providerName={provider.name}
+          onChange={handleSecretsChange}
+          onFetchSecrets={handleFetchSecrets}
+          isFetching={isFetching}
+        />
+      </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        open={deleteModalVisible}
+        onClose={() => setDeleteModalVisible(false)}
+        onConfirm={handleDeleteProvider}
+        title="Delete provider"
+        variant="destructive"
+        confirmText="Delete provider"
+        message={
+          <div className="space-y-4 py-2">
+            <p className="text-zinc-300">
+              Are you sure you want to delete <span className="font-semibold text-white">"{provider.name}"</span>?
+            </p>
+            <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+              <p className="text-sm text-red-400 font-medium leading-relaxed">
+                This will permanently delete {provider.secrets.length} secret{provider.secrets.length !== 1 ? "s" : ""}{" "}
+                stored in this provider.
+              </p>
+            </div>
+            <p className="text-xs text-zinc-500 italic">This action cannot be undone.</p>
+          </div>
+        }
       />
 
-      <Modal
-        title="Delete provider"
-        open={deleteModalVisible}
-        onCancel={() => setDeleteModalVisible(false)}
-        footer={
-          <>
-            <RQButton onClick={() => setDeleteModalVisible(false)}>Cancel</RQButton>
-            <RQButton type="danger" onClick={handleDeleteProvider}>
-              Delete provider
-            </RQButton>
-          </>
-        }
-        className="custom-rq-modal"
-      >
-        <p>
-          Are you sure you want to delete <strong>{provider.name}</strong>? This will also delete all{" "}
-          {provider.secrets.length} secret{provider.secrets.length !== 1 ? "s" : ""} stored in this provider.
-        </p>
-        <p style={{ color: "var(--requestly-color-text-subtle)", marginBottom: 0 }}>This action cannot be undone.</p>
-      </Modal>
+      {/* Unsaved Changes Modal */}
+      <ConfirmModal
+        open={unsavedChangesModal}
+        onClose={() => setUnsavedChangesModal(false)}
+        onConfirm={() => navigate(PATHS.DESIGN.SECRETS.ABSOLUTE)}
+        title="Unsaved changes"
+        confirmText="Leave without saving"
+        cancelText="Stay and save"
+        message="You have unsaved changes that will be lost if you leave. Are you sure you want to proceed?"
+      />
     </div>
   );
 };

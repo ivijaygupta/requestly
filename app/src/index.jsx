@@ -9,6 +9,7 @@ import { PersistGate } from "redux-persist/integration/react";
 import { HotkeysProvider } from "react-hotkeys-hook";
 
 import "./init";
+import "./tailwind.css";
 import "./assets/less/index.less";
 import "./styles/custom/custom.scss";
 
