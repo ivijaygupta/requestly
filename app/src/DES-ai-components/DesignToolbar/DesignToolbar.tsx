@@ -36,9 +36,21 @@ export const DesignToolbar: React.FC = () => {
     if (savedPosition) {
       try {
         const pos = JSON.parse(savedPosition);
-        setPosition(pos);
+
+        // Validate position is within current viewport
+        const isOffsetVisible =
+          pos.x >= 0 && pos.x < window.innerWidth - 50 && pos.y >= 0 && pos.y < window.innerHeight - 50;
+
+        if (isOffsetVisible) {
+          setPosition(pos);
+        } else {
+          // Off-screen or invalid, reset to default
+          localStorage.removeItem(DESIGN_TOOLBAR_POSITION_KEY);
+          setPosition({ x: 0, y: 0 });
+        }
       } catch (e) {
         // Invalid saved position, use default
+        setPosition({ x: 0, y: 0 });
       }
     }
   }, []);
@@ -50,10 +62,18 @@ export const DesignToolbar: React.FC = () => {
         // Default: center bottom
         toolbarRef.current.style.left = "50%";
         toolbarRef.current.style.bottom = "24px";
+        toolbarRef.current.style.top = "auto"; // Reset top
         toolbarRef.current.style.transform = "translateX(-50%)";
       } else {
-        toolbarRef.current.style.left = `${position.x}px`;
-        toolbarRef.current.style.top = `${position.y}px`;
+        // Ensure it's not off-screen if window resized
+        const maxX = window.innerWidth - toolbarRef.current.offsetWidth;
+        const maxY = window.innerHeight - toolbarRef.current.offsetHeight;
+
+        const safeX = Math.max(0, Math.min(position.x, maxX));
+        const safeY = Math.max(0, Math.min(position.y, maxY));
+
+        toolbarRef.current.style.left = `${safeX}px`;
+        toolbarRef.current.style.top = `${safeY}px`;
         toolbarRef.current.style.bottom = "auto";
         toolbarRef.current.style.transform = "none";
       }
