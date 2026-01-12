@@ -5,6 +5,7 @@ import { MdOutlineDesignServices } from "@react-icons/all-files/md/MdOutlineDesi
 import { MdOutlineMenuBook } from "@react-icons/all-files/md/MdOutlineMenuBook";
 import { MdOutlineVpnKey } from "@react-icons/all-files/md/MdOutlineVpnKey";
 import PATHS from "config/constants/sub/paths";
+import { AIChatIntegratedContainer } from "../AIChatPanel/AIChatIntegratedContainer";
 import "./DesignToolbar.scss";
 
 const DESIGN_TOOLBAR_POSITION_KEY = "design-toolbar-position";
@@ -29,6 +30,9 @@ export const DesignToolbar: React.FC = () => {
   const isSecretsPage =
     location.pathname.startsWith(PATHS.DESIGN.SECRETS.RELATIVE) ||
     location.pathname.startsWith(PATHS.DESIGN.SECRETS.ABSOLUTE);
+
+  // Check if we're on API Client routes
+  const isApiClientPage = location.pathname.includes("/api-client");
 
   // Load saved position from localStorage
   useEffect(() => {
@@ -143,44 +147,49 @@ export const DesignToolbar: React.FC = () => {
   };
 
   return (
-    <div ref={toolbarRef} className={`design-toolbar ${isDragging ? "dragging" : ""}`} onMouseDown={handleMouseDown}>
-      <div className="design-toolbar-content">
-        <button
-          className={`design-toolbar-button ${isInteractionsPage ? "active" : ""}`}
-          onClick={handleInteractionsClick}
-          title="Design Interactions"
-        >
-          <MdOutlineAnimation size={16} />
-          <span>Interactions</span>
-        </button>
+    <>
+      <div ref={toolbarRef} className={`design-toolbar ${isDragging ? "dragging" : ""}`} onMouseDown={handleMouseDown}>
+        <div className="design-toolbar-content">
+          <button
+            className={`design-toolbar-button ${isInteractionsPage ? "active" : ""}`}
+            onClick={handleInteractionsClick}
+            title="Design Interactions"
+          >
+            <MdOutlineAnimation size={16} />
+            <span>Interactions</span>
+          </button>
 
-        <button
-          className={`design-toolbar-button ${isSecretsPage ? "active" : ""}`}
-          onClick={handleSecretsClick}
-          title="Secrets"
-        >
-          <MdOutlineVpnKey size={16} />
-          <span>Secrets</span>
-        </button>
+          <button
+            className={`design-toolbar-button ${isSecretsPage ? "active" : ""}`}
+            onClick={handleSecretsClick}
+            title="Secrets"
+          >
+            <MdOutlineVpnKey size={16} />
+            <span>Secrets</span>
+          </button>
 
-        <button
-          className="design-toolbar-button design-toolbar-button-placeholder"
-          disabled
-          title="Design System (Coming Soon)"
-        >
-          <MdOutlineDesignServices size={16} />
-          <span>Design System</span>
-        </button>
+          <button
+            className="design-toolbar-button design-toolbar-button-placeholder"
+            disabled
+            title="Design System (Coming Soon)"
+          >
+            <MdOutlineDesignServices size={16} />
+            <span>Design System</span>
+          </button>
 
-        <button
-          className="design-toolbar-button design-toolbar-button-placeholder"
-          disabled
-          title="Guidelines (Coming Soon)"
-        >
-          <MdOutlineMenuBook size={16} />
-          <span>Guidelines</span>
-        </button>
+          <button
+            className="design-toolbar-button design-toolbar-button-placeholder"
+            disabled
+            title="Guidelines (Coming Soon)"
+          >
+            <MdOutlineMenuBook size={16} />
+            <span>Guidelines</span>
+          </button>
+        </div>
       </div>
-    </div>
+
+      {/* AI Chat Panel - Integrated side panel, only shown on API Client pages */}
+      {isApiClientPage && <AIChatIntegratedContainer />}
+    </>
   );
 };
