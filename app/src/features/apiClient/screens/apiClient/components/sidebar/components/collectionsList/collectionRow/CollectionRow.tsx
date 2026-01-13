@@ -141,8 +141,8 @@ export const CollectionRow: React.FC<Props> = ({
         {
           key: "0",
           label: (
-            <div>
-              <MdOutlineBorderColor style={{ marginRight: 8 }} />
+            <div className="collection-row-option">
+              <MdOutlineBorderColor />
               Rename
             </div>
           ),
@@ -154,10 +154,10 @@ export const CollectionRow: React.FC<Props> = ({
         {
           key: "1",
           label: (
-            <span>
-              <MdOutlineIosShare style={{ marginRight: 8 }} />
+            <div className="collection-row-option">
+              <MdOutlineIosShare />
               Export as
-            </span>
+            </div>
           ),
           expandIcon: <IoChevronForward style={{ position: "absolute", right: 12 }} />,
           children: [

@@ -208,6 +208,12 @@
         gap: var(--space-4, 8px);
         align-self: stretch;
         border-bottom: 1px solid var(--requestly-color-white-t-10, rgba(255, 255, 255, 0.06));
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+
+        &:hover {
+          background-color: var(--requestly-color-white-t-5, rgba(255, 255, 255, 0.03));
+        }
 
         .execution-error-message {
           display: flex;
@@ -264,6 +270,7 @@
           display: flex;
           align-items: center;
           gap: 4px;
+          width: 100%;
 
           .icon {
             margin-right: 4px;
@@ -316,6 +323,8 @@
             line-height: 17px; /* 150% */
             margin-right: 4px;
             cursor: pointer;
+            flex-shrink: 1;
+            min-width: 0;
           }
 
           .response-details {

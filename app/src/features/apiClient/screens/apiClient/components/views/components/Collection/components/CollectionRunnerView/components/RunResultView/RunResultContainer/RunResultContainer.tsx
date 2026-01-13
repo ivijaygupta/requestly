@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState, useCallback } from "react";
 import { Badge, Collapse, Spin, Tabs } from "antd";
 import {
   CurrentlyExecutingRequest,
@@ -26,6 +26,7 @@ import { MdOutlineWarningAmber } from "@react-icons/all-files/md/MdOutlineWarnin
 import { RQTooltip } from "lib/design-system-v2/components";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import NetworkStatusField from "components/misc/NetworkStatusField";
+import { useResultDetailsPanel } from "DES-ai-components/CollectionRunner/ResultDetailsPanelContext";
 
 enum RunResultTabKey {
   ALL = "all",
@@ -88,15 +89,18 @@ const TestDetails: React.FC<{
 }> = React.memo(({ requestExecutionResult }) => {
   const context = useApiClientFeatureContext();
   const [openTab] = useTabServiceWithSelector((s) => [s.openTab]);
+  const { openPanel } = useResultDetailsPanel();
 
   const responseDetails = useMemo(() => {
     return (
       <div className="response-details">
-        <span className="response-time">{Math.round(requestExecutionResult.entry.responseTime)}ms</span>
+        <span className="response-time">
+          {requestExecutionResult.entry.responseTime ? Math.round(requestExecutionResult.entry.responseTime) : 0}ms
+        </span>
         {requestExecutionResult.entry.statusCode ? (
           <NetworkStatusField
             status={requestExecutionResult.entry.statusCode}
-            statusText={requestExecutionResult.entry.statusText}
+            statusText={requestExecutionResult.entry.statusText || undefined}
           />
         ) : null}
       </div>
@@ -116,7 +120,8 @@ const TestDetails: React.FC<{
         <span
           className="request-name"
           title={requestExecutionResult.recordName}
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation();
             openTab(
               new RequestViewTabSource({
                 id: requestExecutionResult.recordId,
@@ -140,8 +145,26 @@ const TestDetails: React.FC<{
     requestExecutionResult.recordName,
   ]);
 
+  const handleRowClick = useCallback(
+    (e: React.MouseEvent) => {
+      // Don't open panel if clicking on request name (which opens the request in a tab)
+      // The request name click handler will stop propagation, but we also check here as a safeguard
+      const target = e.target as HTMLElement;
+      if (
+        target.closest(".request-name") ||
+        target.classList.contains("request-name") ||
+        target.closest(".collection-name") ||
+        target.classList.contains("collection-name")
+      ) {
+        return;
+      }
+      openPanel(requestExecutionResult);
+    },
+    [openPanel, requestExecutionResult]
+  );
+
   return (
-    <div className="test-details-container">
+    <div className="test-details-container" onClick={handleRowClick}>
       <div className="request-details">
         <span className="icon">
           {requestExecutionResult.entry.type === RQAPI.ApiEntryType.GRAPHQL ? (

@@ -14,6 +14,11 @@ import { RunResultView } from "./components/RunResultView/RunResultView";
 import "./collectionRunnerView.scss";
 import { RunResult } from "features/apiClient/store/collectionRunResult/runResult.store";
 import { DataFileModalProvider } from "./components/RunConfigView/ParseFileModal/Modals/DataFileModalContext";
+import {
+  ResultDetailsPanelProvider,
+  useResultDetailsPanel,
+} from "DES-ai-components/CollectionRunner/ResultDetailsPanelContext";
+import { ResultDetailsPanel } from "DES-ai-components/CollectionRunner/ResultDetailsPanel";
 
 interface Props {
   collectionId: RQAPI.CollectionRecord["id"];
@@ -61,22 +66,37 @@ export const CollectionRunnerView: React.FC<Props> = ({ collectionId }) => {
     <CollectionViewContextProvider key={collectionId} collectionId={collectionId}>
       <AutogenerateProvider>
         <RunViewContextProvider runConfig={config} history={runResults}>
-          <div className="collection-runner-view">
-            <Split
-              gutterSize={4}
-              sizes={[50, 50]}
-              minSize={[400, 500]}
-              direction="horizontal"
-              className="collection-runner-view-split"
-            >
-              <DataFileModalProvider>
-                <RunConfigView />
-                <RunResultView />
-              </DataFileModalProvider>
-            </Split>
-          </div>
+          <ResultDetailsPanelProvider>
+            <CollectionRunnerViewContent collectionId={collectionId} />
+          </ResultDetailsPanelProvider>
         </RunViewContextProvider>
       </AutogenerateProvider>
     </CollectionViewContextProvider>
+  );
+};
+
+const CollectionRunnerViewContent: React.FC<{ collectionId: RQAPI.CollectionRecord["id"] }> = ({ collectionId }) => {
+  const { selectedResult, isOpen, closePanel } = useResultDetailsPanel();
+
+  return (
+    <div className="collection-runner-view">
+      <Split
+        gutterSize={4}
+        sizes={isOpen ? [0, 100] : [50, 50]}
+        minSize={isOpen ? [0, 500] : [400, 500]}
+        direction="horizontal"
+        className={isOpen ? "collection-runner-view-split details-panel-open" : "collection-runner-view-split"}
+      >
+        <DataFileModalProvider>
+          <div className="run-config-view-wrapper">
+            <div className={isOpen ? "run-config-view-content hidden" : "run-config-view-content visible"}>
+              <RunConfigView />
+            </div>
+          </div>
+          <RunResultView />
+        </DataFileModalProvider>
+      </Split>
+      {isOpen && selectedResult && <ResultDetailsPanel result={selectedResult} onClose={closePanel} />}
+    </div>
   );
 };
