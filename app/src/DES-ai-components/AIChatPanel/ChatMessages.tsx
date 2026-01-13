@@ -30,10 +30,7 @@ export const ChatMessages: React.FC = () => {
   return (
     <div
       ref={containerRef}
-      className={cn(
-        "flex-1 overflow-y-auto overflow-x-hidden",
-        "bg-[#141414]"
-      )}
+      className={cn("flex-1 overflow-y-auto overflow-x-hidden", "bg-[#141414]")}
       style={{
         scrollbarWidth: "thin",
         scrollbarColor: "#333 transparent",
@@ -48,7 +45,7 @@ export const ChatMessages: React.FC = () => {
         {isProcessing && (
           <div className="flex w-full gap-3 px-4 py-2.5 justify-start">
             <div className="flex-shrink-0">
-              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-violet-600">
+              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-indigo-600">
                 <LoaderIcon className="h-3.5 w-3.5 text-white animate-spin" />
               </div>
             </div>

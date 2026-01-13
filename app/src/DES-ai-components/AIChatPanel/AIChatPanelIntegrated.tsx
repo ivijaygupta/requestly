@@ -24,8 +24,7 @@ export const AIChatPanelIntegrated: React.FC<AIChatPanelIntegratedProps> = ({ on
   // Handle keyboard shortcut for toggle
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      const isModifierPressed =
-        (e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === KEYBOARD_SHORTCUT.key;
+      const isModifierPressed = (e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === KEYBOARD_SHORTCUT.key;
 
       if (isModifierPressed) {
         e.preventDefault();
@@ -50,16 +49,13 @@ export const AIChatPanelIntegrated: React.FC<AIChatPanelIntegratedProps> = ({ on
   // Panel is always rendered - visibility controlled by parent container width
   return (
     <div
-      className={cn(
-        "flex flex-col h-full w-full",
-        "bg-[#141414] border-l border-[#252525]"
-      )}
+      className={cn("flex flex-col h-full w-full", "bg-[#141414] border-l border-[#252525]")}
       style={{ minWidth: "380px" }}
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-[#252525] bg-[#181818]">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-violet-600">
+          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-indigo-600">
             <SparklesIcon className="h-3 w-3 text-white" />
           </div>
           <h2 className="text-[13px] font-medium text-[#ccc]">AI Assistant</h2>

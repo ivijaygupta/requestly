@@ -76,7 +76,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage }) => {
                   "text-[11px] text-[#999]",
                   "hover:bg-[#252525] hover:border-[#333] hover:text-[#ccc]",
                   "transition-all duration-150",
-                  "focus:outline-none focus:ring-1 focus:ring-violet-500/40"
+                  "focus:outline-none focus:ring-1 focus:ring-indigo-500/40"
                 )}
               >
                 <SuggestionIcon type={suggestion.icon} />
@@ -119,29 +119,29 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage }) => {
             disabled={!inputValue.trim() || isProcessing}
             className={cn(
               "flex-shrink-0 p-2 m-1.5 rounded-md",
-              "bg-violet-600",
+              "bg-indigo-600",
               "text-white",
-              "hover:bg-violet-500",
-              "disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-violet-600",
+              "hover:bg-indigo-500",
+              "disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-indigo-600",
               "transition-all duration-150",
-              "focus:outline-none focus:ring-1 focus:ring-violet-400"
+              "focus:outline-none focus:ring-1 focus:ring-indigo-400"
             )}
           >
-            {isProcessing ? (
-              <LoaderIcon className="h-4 w-4 animate-spin" />
-            ) : (
-              <SendIcon className="h-4 w-4" />
-            )}
+            {isProcessing ? <LoaderIcon className="h-4 w-4 animate-spin" /> : <SendIcon className="h-4 w-4" />}
           </button>
         </div>
-        
+
         {/* Hint text */}
         <div className="flex items-center justify-center gap-1.5 mt-2.5">
           <span className="text-[10px] text-[#444]">
-            <kbd className="px-1 py-0.5 rounded text-[9px] bg-[#222] text-[#666] font-mono border border-[#333]">Enter</kbd>
+            <kbd className="px-1 py-0.5 rounded text-[9px] bg-[#222] text-[#666] font-mono border border-[#333]">
+              Enter
+            </kbd>
             <span className="mx-1">to send</span>
             <span className="text-[#333]">·</span>
-            <kbd className="px-1 py-0.5 rounded text-[9px] bg-[#222] text-[#666] font-mono border border-[#333] ml-1">Shift+Enter</kbd>
+            <kbd className="px-1 py-0.5 rounded text-[9px] bg-[#222] text-[#666] font-mono border border-[#333] ml-1">
+              Shift+Enter
+            </kbd>
             <span className="ml-1">for new line</span>
           </span>
         </div>

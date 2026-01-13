@@ -33,9 +33,7 @@ export const AIChatFooterButton: React.FC = () => {
         "border-r border-[#303030]",
         "transition-colors duration-150",
         // Color states
-        isOpen
-          ? "text-[#e8e8e8]"
-          : "text-[#808080] hover:text-[#e8e8e8]",
+        isOpen ? "text-[#e8e8e8]" : "text-[#808080] hover:text-[#e8e8e8]",
         // No background to match footer style
         "bg-transparent"
       )}
@@ -46,9 +44,7 @@ export const AIChatFooterButton: React.FC = () => {
     >
       <SparklesIcon className="h-3.5 w-3.5" />
       <span>AI Assistant</span>
-      {hasUnread && (
-        <span className="flex h-1.5 w-1.5 rounded-full bg-violet-500" />
-      )}
+      {hasUnread && <span className="flex h-1.5 w-1.5 rounded-full bg-indigo-500" />}
     </button>
   );
 };

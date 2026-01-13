@@ -23,12 +23,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       {/* Avatar for assistant */}
       {!isUser && (
         <div className="flex-shrink-0 mt-0.5">
-          <div
-            className={cn(
-              "flex h-7 w-7 items-center justify-center rounded-md",
-              "bg-violet-600"
-            )}
-          >
+          <div className={cn("flex h-7 w-7 items-center justify-center rounded-md", "bg-indigo-600")}>
             <SparklesIcon className="h-3.5 w-3.5 text-white" />
           </div>
         </div>
@@ -38,16 +33,14 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       <div
         className={cn(
           "max-w-[85%] rounded-lg px-3 py-2",
-          isUser
-            ? "bg-violet-600 text-white"
-            : "bg-[#1e1e1e] text-[#d4d4d4] border border-[#2a2a2a]",
+          isUser ? "bg-indigo-600 text-white" : "bg-[#1e1e1e] text-[#d4d4d4] border border-[#2a2a2a]",
           isSystem && "bg-amber-900/20 border-amber-700/30 text-amber-200"
         )}
       >
         <div className="text-[13px] leading-relaxed whitespace-pre-wrap">
           <MessageContent content={message.content} isUser={isUser} />
         </div>
-        
+
         {/* Action status indicator */}
         {message.action && (
           <div className="mt-2 pt-2 border-t border-[#333]">
@@ -56,12 +49,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
         )}
 
         {/* Timestamp */}
-        <div
-          className={cn(
-            "mt-1.5 text-[10px]",
-            isUser ? "text-white/40" : "text-[#555]"
-          )}
-        >
+        <div className={cn("mt-1.5 text-[10px]", isUser ? "text-white/40" : "text-[#555]")}>
           {formatTime(message.timestamp)}
         </div>
       </div>
@@ -112,7 +100,7 @@ const MessageContent: React.FC<{ content: string; isUser?: boolean }> = ({ conte
             <span key={index}>
               {part.split("•").map((item, i) => (
                 <React.Fragment key={i}>
-                  {i > 0 && <span className={isUser ? "text-white/60" : "text-violet-400"}>•</span>}
+                  {i > 0 && <span className={isUser ? "text-white/60" : "text-indigo-400"}>•</span>}
                   {item}
                 </React.Fragment>
               ))}
@@ -143,11 +131,7 @@ const ActionStatus: React.FC<{ action: ChatMessageType["action"] }> = ({ action 
     <div className={cn("flex items-center gap-1.5 text-[11px]", config.color)}>
       <Icon className={cn("h-3 w-3", action.status === "executing" && "animate-spin")} />
       <span>{config.label}</span>
-      {action.type && (
-        <span className="text-[#555]">
-          · {action.type.replace(/_/g, " ")}
-        </span>
-      )}
+      {action.type && <span className="text-[#555]">· {action.type.replace(/_/g, " ")}</span>}
     </div>
   );
 };
