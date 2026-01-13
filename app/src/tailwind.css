@@ -1,1 +1,255 @@
 @import "tailwindcss";
+
+/* ========================================
+   Requestly Theme - Override Default Tailwind Colors
+   ========================================
+   This overrides default Tailwind color classes so shadcn/diceui 
+   components automatically use Requestly brand colors.
+   
+   Mapping:
+   - indigo-* → Requestly Primary (Blue)
+   - zinc-*   → Requestly Neutral (Grays)
+   - red-*    → Requestly Error/Destructive
+   - green-*  → Requestly Success
+   - yellow-* → Requestly Warning
+   - violet-* → Requestly Secondary (Purple)
+   ======================================== */
+
+@theme {
+  /* Override indigo with Requestly Primary Blue */
+  --color-indigo-50: #cbe2fe;
+  --color-indigo-100: #cbe2fe;
+  --color-indigo-200: #97c3fd;
+  --color-indigo-300: #639ff9;
+  --color-indigo-400: #3c7ff3;
+  --color-indigo-500: #004eeb;
+  --color-indigo-600: #003cca;
+  --color-indigo-700: #002ca9;
+  --color-indigo-800: #001f88;
+  --color-indigo-900: #001670;
+  --color-indigo-950: #111a2c;
+
+  /* Override zinc with Requestly Neutral Grays */
+  --color-zinc-50: #e9e9e9;
+  --color-zinc-100: #e9e9e9;
+  --color-zinc-200: #d1d1d1;
+  --color-zinc-300: #bbbbbb;
+  --color-zinc-400: #8f8f8f;
+  --color-zinc-500: #787878;
+  --color-zinc-600: #5c5c5c;
+  --color-zinc-700: #383838;
+  --color-zinc-800: #282828;
+  --color-zinc-900: #212121;
+  --color-zinc-950: #1a1a1a;
+
+  /* Override red with Requestly Error/Destructive */
+  --color-red-50: #ffc7c7;
+  --color-red-100: #ffc7c7;
+  --color-red-200: #ffa7a7;
+  --color-red-300: #ff8080;
+  --color-red-400: #f95e5e;
+  --color-red-500: #dc2626;
+  --color-red-600: #cf2a2a;
+  --color-red-700: #a41f1f;
+  --color-red-800: #591a1a;
+  --color-red-900: #2f0404;
+  --color-red-950: #271111;
+
+  /* Override green with Requestly Success */
+  --color-green-50: #a6e9c8;
+  --color-green-100: #a6e9c8;
+  --color-green-200: #6fdaa6;
+  --color-green-300: #4dcc8f;
+  --color-green-400: #28c07a;
+  --color-green-500: #0baa60;
+  --color-green-600: #0a9c55;
+  --color-green-700: #0c7844;
+  --color-green-800: #104b2f;
+  --color-green-900: #00210e;
+  --color-green-950: #0d1f11;
+
+  /* Override yellow with Requestly Warning */
+  --color-yellow-50: #ffdd86;
+  --color-yellow-100: #ffdd86;
+  --color-yellow-200: #ffcb45;
+  --color-yellow-300: #fdba0f;
+  --color-yellow-400: #f2aa09;
+  --color-yellow-500: #e09400;
+  --color-yellow-600: #d07d00;
+  --color-yellow-700: #b55e0f;
+  --color-yellow-800: #5c3111;
+  --color-yellow-900: #2e1b00;
+  --color-yellow-950: #27170b;
+
+  /* Override violet with Requestly Secondary Purple */
+  --color-violet-50: #e3dbf6;
+  --color-violet-100: #c8b7ec;
+  --color-violet-200: #ae93e0;
+  --color-violet-300: #956fd4;
+  --color-violet-400: #7e48c6;
+  --color-violet-500: #680cb7;
+  --color-violet-600: #50078f;
+  --color-violet-700: #390469;
+  --color-violet-800: #240245;
+  --color-violet-900: #100024;
+  --color-violet-950: #020007;
+
+  /* Override blue with Requestly Primary (alternative) */
+  --color-blue-50: #cbe2fe;
+  --color-blue-100: #cbe2fe;
+  --color-blue-200: #97c3fd;
+  --color-blue-300: #639ff9;
+  --color-blue-400: #3c7ff3;
+  --color-blue-500: #004eeb;
+  --color-blue-600: #003cca;
+  --color-blue-700: #002ca9;
+  --color-blue-800: #001f88;
+  --color-blue-900: #001670;
+  --color-blue-950: #111a2c;
+
+  /* Override amber with Requestly Warning (alternative) */
+  --color-amber-50: #ffdd86;
+  --color-amber-100: #ffdd86;
+  --color-amber-200: #ffcb45;
+  --color-amber-300: #fdba0f;
+  --color-amber-400: #f2aa09;
+  --color-amber-500: #e09400;
+  --color-amber-600: #d07d00;
+  --color-amber-700: #b55e0f;
+  --color-amber-800: #5c3111;
+  --color-amber-900: #2e1b00;
+  --color-amber-950: #27170b;
+
+  /* Override emerald with Requestly Success (alternative) */
+  --color-emerald-50: #a6e9c8;
+  --color-emerald-100: #a6e9c8;
+  --color-emerald-200: #6fdaa6;
+  --color-emerald-300: #4dcc8f;
+  --color-emerald-400: #28c07a;
+  --color-emerald-500: #0baa60;
+  --color-emerald-600: #0a9c55;
+  --color-emerald-700: #0c7844;
+  --color-emerald-800: #104b2f;
+  --color-emerald-900: #00210e;
+  --color-emerald-950: #0d1f11;
+
+  /* Override slate/gray/neutral with Requestly Grays */
+  --color-slate-50: #e9e9e9;
+  --color-slate-100: #e9e9e9;
+  --color-slate-200: #d1d1d1;
+  --color-slate-300: #bbbbbb;
+  --color-slate-400: #8f8f8f;
+  --color-slate-500: #787878;
+  --color-slate-600: #5c5c5c;
+  --color-slate-700: #383838;
+  --color-slate-800: #282828;
+  --color-slate-900: #212121;
+  --color-slate-950: #1a1a1a;
+
+  --color-gray-50: #e9e9e9;
+  --color-gray-100: #e9e9e9;
+  --color-gray-200: #d1d1d1;
+  --color-gray-300: #bbbbbb;
+  --color-gray-400: #8f8f8f;
+  --color-gray-500: #787878;
+  --color-gray-600: #5c5c5c;
+  --color-gray-700: #383838;
+  --color-gray-800: #282828;
+  --color-gray-900: #212121;
+  --color-gray-950: #1a1a1a;
+
+  --color-neutral-50: #e9e9e9;
+  --color-neutral-100: #e9e9e9;
+  --color-neutral-200: #d1d1d1;
+  --color-neutral-300: #bbbbbb;
+  --color-neutral-400: #8f8f8f;
+  --color-neutral-500: #787878;
+  --color-neutral-600: #5c5c5c;
+  --color-neutral-700: #383838;
+  --color-neutral-800: #282828;
+  --color-neutral-900: #212121;
+  --color-neutral-950: #1a1a1a;
+
+  /* Override purple with Requestly Secondary */
+  --color-purple-50: #e3dbf6;
+  --color-purple-100: #c8b7ec;
+  --color-purple-200: #ae93e0;
+  --color-purple-300: #956fd4;
+  --color-purple-400: #7e48c6;
+  --color-purple-500: #680cb7;
+  --color-purple-600: #50078f;
+  --color-purple-700: #390469;
+  --color-purple-800: #240245;
+  --color-purple-900: #100024;
+  --color-purple-950: #020007;
+}
+
+/* CSS Variables for shadcn/diceui components */
+:root {
+  /* Background Colors */
+  --background: #1a1a1a;
+  --background-dark: #141414;
+  --foreground: #e9e9e9;
+
+  /* Card */
+  --card: #212121;
+  --card-foreground: #e9e9e9;
+
+  /* Popover */
+  --popover: #212121;
+  --popover-foreground: #e9e9e9;
+
+  /* Primary */
+  --primary: #004eeb;
+  --primary-foreground: #ffffff;
+
+  /* Secondary */
+  --secondary: #282828;
+  --secondary-foreground: #e9e9e9;
+
+  /* Muted */
+  --muted: #282828;
+  --muted-foreground: #8f8f8f;
+
+  /* Accent */
+  --accent: #383838;
+  --accent-foreground: #e9e9e9;
+
+  /* Destructive */
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+
+  /* Success */
+  --success: #0baa60;
+  --success-foreground: #ffffff;
+
+  /* Warning */
+  --warning: #e09400;
+  --warning-foreground: #000000;
+
+  /* Border */
+  --border: #383838;
+  --input: #383838;
+  --ring: #004eeb;
+
+  /* Surface layers (Requestly specific) */
+  --surface-0: #212121;
+  --surface-1: #282828;
+  --surface-2: #383838;
+  --surface-3: #5c5c5c;
+
+  /* Text variants */
+  --text-default: #ffffff;
+  --text-subtle: #bbbbbb;
+  --text-placeholder: #8f8f8f;
+
+  /* Chart colors */
+  --chart-1: #004eeb;
+  --chart-2: #680cb7;
+  --chart-3: #0baa60;
+  --chart-4: #e09400;
+  --chart-5: #dc2626;
+
+  /* Radius */
+  --radius: 0.5rem;
+}

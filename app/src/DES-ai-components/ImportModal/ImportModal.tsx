@@ -304,7 +304,7 @@ const ImportModal: React.FC<ImportModalProps> = ({ isOpen, onClose }) => {
           >
             Cancel
           </Button>
-          <Button variant="primary" size="sm" onClick={onClose} className="bg-violet-600 hover:bg-violet-500">
+          <Button variant="primary" size="sm" onClick={onClose}>
             Import {selectedCount > 0 && `(${selectedCount})`}
           </Button>
         </div>
