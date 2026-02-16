@@ -5,7 +5,7 @@ Your write access is **digitally restricted** to specific directories.
 
 # 🚫 RESTRICTED ZONES (READ-ONLY)
 You are **FORBIDDEN** from modifying code in these directories:
-- `app/src/` (EXCEPT `app/src/DES-ai-components/`)
+- `app/src/` (EXCEPT `app/src/DES-playground/`)
 - `shared/`
 - `common/`
 - `browser-extension/`
@@ -13,12 +13,12 @@ You are **FORBIDDEN** from modifying code in these directories:
 > **IF** the user asks you to modify a file in a Restricted Zone (e.g. "update header color", "fix bug in rules"):
 > **YOU MUST REFUSE** and reply with this exact format:
 > "� **Safety Block:** I cannot modify legacy code in `[File Name]`.
-> I can only build new UI in `app/src/DES-ai-components/`.
+> I can only build new UI in `app/src/DES-playground/`.
 > Shall I create a new component there instead?"
 
 # ✅ ALLOWED ZONE (READ-WRITE)
 You have full permission to create and edit files **ONLY** in:
-- `app/src/DES-ai-components/`
+- `app/src/DES-playground/`
 
 # 🛠 TECHNOLOGY STANDARDS (MANDATORY)
 When working in the Allowed Zone, you MUST use:
@@ -58,7 +58,7 @@ Code Organization:
 ### 🎨 A. Exploration & Prototyping Mode
 *When: conceptualizing new features, "what if" scenarios, or when no strict design exists.*
 - **Be Creative**: Propose UI layouts that feel "Linear-grade" (clean, precise, restrained, premium).
-- **Iterate Fast**: Use `DES-ai-components` to build rapid prototypes.
+- **Iterate Fast**: Use `DES-playground` to build rapid prototypes.
 - **Mock Data**: Use realistic data (not "Lorem Ipsum") to sell the realism of the prototype.
 - **Multiple Options**: If the solution isn't clear, present 2-3 distinct implementation paths (e.g., "Modal vs. Side Panel" or "Wizard vs. Single Form").
 - **Proactive Gaps**: If a feature needs a button, don't ask—add it with a sensible label and design, then ask for confirmation.
@@ -74,8 +74,8 @@ Code Organization:
 ## 2. Non-Negotiable Safety Rules (ISOLATION)
 1.  **Do NOT break existing functionality** (Critical).
 2.  **Do NOT modify existing UI/CSS/Legacy code** unless explicitly asked (Refactoring is dangerous).
-3.  **All NEW work MUST happen in `app/src/DES-ai-components/`**.
-    -   You are PROHIBITED from modifying files in `app/src/` (outside DES-ai-components), `shared/`, or `common/` unless linking the new component requires a minimal import change.
+3.  **All NEW work MUST happen in `app/src/DES-playground/`**.
+    -   You are PROHIBITED from modifying files in `app/src/` (outside DES-playground), `shared/`, or `common/` unless linking the new component requires a minimal import change.
 4.  **Do NOT introduce new dependencies** without approval.
 
 ---
@@ -93,7 +93,7 @@ Code Organization:
 ## 4. STRICT Styling Rules
 -   ✅ **Tailwind CSS ONLY**: All custom styling must be done via Tailwind utility classes.
 -   ❌ **NO Custom CSS/SCSS/LESS**: Do not create new `.css` or `.scss` files. Do not add `style={{ ... }}` inline styles.
--   ✅ **Class Merging**: Use `import { cn } from "DES-ai-components/lib/utils"` (or relative path) for conditional styling.
+-   ✅ **Class Merging**: Use `import { cn } from "DES-playground/lib/utils"` (or relative path) for conditional styling.
 
 ---
 
@@ -108,9 +108,9 @@ Whether exploring or implementing, all UI must hit this bar:
 
 ---
 
-## 6. Location of Work: `DES-ai-components/`
+## 6. Location of Work: `DES-playground/`
 -   **Structure:**
-    -   `DES-ai-components/[FeatureName]/[Component].tsx`
+    -   `DES-playground/[FeatureName]/[Component].tsx`
 -   **Why?** To ensure complete isolation from the production codebase (`legacy`).
 -   **Isolation**: Components here should be self-contained. If they rely on legacy stores/context, wrap them carefully.
 

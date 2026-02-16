@@ -1,11 +1,20 @@
-import React, { useState } from "react";
-import { PostmanImportModal } from "../../../DES-playground/PostmanImportModal";
-import { ImportModal } from "../../../DES-playground/ImportModal";
+import React from "react";
+import { useSearchParams } from "react-router-dom";
+import { PostmanImportModal } from "../../PostmanImportModal";
+import { ImportModal } from "../../ImportModal";
 import "./interactions.scss";
 
 const InteractionsPage = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const modalType = searchParams.get("modal");
+
+  const openModal = (type: string) => {
+    setSearchParams({ modal: type });
+  };
+
+  const closeModal = () => {
+    setSearchParams({});
+  };
 
   return (
     <div className="interactions-page">
@@ -14,7 +23,7 @@ const InteractionsPage = () => {
         <p className="interactions-page-description">Showcase of interactive components and design patterns</p>
 
         <div className="interactions-grid">
-          <div className="interaction-card" onClick={() => setIsModalOpen(true)}>
+          <div className="interaction-card" onClick={() => openModal("postman-import")}>
             <div className="interaction-card-header">
               <h3>Postman Import Modal</h3>
               <span className="interaction-card-badge">Loading Animation</span>
@@ -36,7 +45,7 @@ const InteractionsPage = () => {
             </div>
           </div>
 
-          <div className="interaction-card" onClick={() => setIsImportModalOpen(true)}>
+          <div className="interaction-card" onClick={() => openModal("import-items")}>
             <div className="interaction-card-header">
               <h3>Import Items Modal</h3>
               <span className="interaction-card-badge">Tree View</span>
@@ -67,8 +76,8 @@ const InteractionsPage = () => {
           </div>
         </div>
 
-        <PostmanImportModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-        <ImportModal isOpen={isImportModalOpen} onClose={() => setIsImportModalOpen(false)} />
+        <PostmanImportModal isOpen={modalType === "postman-import"} onClose={closeModal} />
+        <ImportModal isOpen={modalType === "import-items"} onClose={closeModal} />
       </div>
     </div>
   );

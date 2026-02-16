@@ -32,7 +32,7 @@ import { useAppLanguageObserver } from "hooks/useAppLanguageObserver";
 import useClientStorageService from "services/clientStorageService/hooks/useClientStorageService";
 import { BlockScreenHoc } from "componentsV2/BlockScreen/BlockScreenHoc";
 import { AppUpdateNotifier } from "componentsV2/AppUpdateNotifier/AppUpdateNotifier";
-import { DesignToolbar } from "DES-ai-components/DesignToolbar";
+import { DesignToolbar } from "DES-playground/DesignToolbar";
 
 const { PATHS } = APP_CONSTANTS;
 const App: React.FC = () => {

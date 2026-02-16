@@ -19,7 +19,7 @@ import { HeaderEditorImportScreen } from "features/rules/screens/rulesList/compo
 import QuitDesktop from "components/misc/QuitDesktop";
 import { GithubStudentPack } from "features/onboarding/componentsV2/GithubStudentPack/GithubStudentPack";
 import InteractionsPage from "views/design/interactions";
-import { SecretsPageView, ProviderDetailsPageView } from "DES-ai-components/Secrets";
+import { SecretsPageView, ProviderDetailsPageView } from "DES-playground/Secrets";
 
 export const miscRoutes: RouteObject[] = [
   {
