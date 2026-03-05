@@ -63,6 +63,10 @@ interface Props {
   };
   onItemClick?: (record: RQAPI.ApiClientRecord, event: React.MouseEvent) => void;
   handleRecordsToBeDeleted: (records: RQAPI.ApiClientRecord[], context?: ApiClientFeatureContext) => void;
+  /** When true, shows a temporary border highlight (e.g. after adding from AI chat). */
+  isHighlighted?: boolean;
+  /** Called when user interacts with the row; use to clear highlight. */
+  onClearHighlight?: () => void;
 }
 
 export type DraggableApiRecord = {
@@ -80,6 +84,8 @@ export const CollectionRow: React.FC<Props> = ({
   isReadOnly,
   handleRecordsToBeDeleted,
   onItemClick,
+  isHighlighted = false,
+  onClearHighlight,
 }) => {
   const { selectedRecords, showSelection, recordsSelectionHandler, setShowSelection } = bulkActionOptions || {};
   const [isEditMode, setIsEditMode] = useState(false);
@@ -375,7 +381,10 @@ export const CollectionRow: React.FC<Props> = ({
           }}
         />
       ) : (
-        <div ref={drop} className={isOver ? "collection-drop-target" : ""}>
+        <div
+          ref={drop}
+          className={`${isOver ? "collection-drop-target" : ""} ${isHighlighted ? "recently-added-highlight" : ""}`}
+        >
           <Collapse
             activeKey={activeKey}
             onChange={collapseChangeHandler}
@@ -420,6 +429,7 @@ export const CollectionRow: React.FC<Props> = ({
                   onMouseEnter={() => setHoveredId(record.id)}
                   onMouseLeave={() => setHoveredId("")}
                   onClick={(e) => {
+                    if (isHighlighted) onClearHighlight?.();
                     if (onItemClick && (e.metaKey || e.ctrlKey)) {
                       e.stopPropagation();
                       onItemClick(record, e);

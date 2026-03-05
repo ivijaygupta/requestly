@@ -41,6 +41,10 @@ interface Props {
   };
   handleRecordsToBeDeleted: (records: RQAPI.ApiClientRecord[], context?: ApiClientFeatureContext) => void;
   onItemClick?: (record: RQAPI.ApiClientRecord, event: React.MouseEvent) => void;
+  /** When true, shows a temporary border highlight (e.g. after adding from AI chat). */
+  isHighlighted?: boolean;
+  /** Called when user interacts with the row; use to clear highlight. */
+  onClearHighlight?: () => void;
 }
 
 export const HttpMethodIcon = ({ method }: { method: RequestMethod }) => {
@@ -76,6 +80,8 @@ export const RequestRow: React.FC<Props> = ({
   bulkActionOptions,
   handleRecordsToBeDeleted,
   onItemClick,
+  isHighlighted = false,
+  onClearHighlight,
 }) => {
   const { selectedRecords, showSelection, recordsSelectionHandler, setShowSelection } = bulkActionOptions || {};
   const [isEditMode, setIsEditMode] = useState(false);
@@ -145,12 +151,8 @@ export const RequestRow: React.FC<Props> = ({
     return [
       {
         key: "0",
-        label: (
-          <div>
-            <MdOutlineBorderColor style={{ marginRight: 8 }} />
-            Rename
-          </div>
-        ),
+        icon: <MdOutlineBorderColor />,
+        label: "Rename",
         onClick: (itemInfo) => {
           itemInfo.domEvent?.stopPropagation?.();
           setIsEditMode(true);
@@ -159,12 +161,10 @@ export const RequestRow: React.FC<Props> = ({
       },
       {
         key: "1",
+        icon: <MdContentCopy />,
         label: (
           <LocalWorkspaceTooltip featureName="Request duplication" placement="bottomRight">
-            <div>
-              <MdContentCopy style={{ marginRight: 8 }} />
-              Duplicate
-            </div>
+            <span>Duplicate</span>
           </LocalWorkspaceTooltip>
         ),
         onClick: (itemInfo) => {
@@ -176,12 +176,8 @@ export const RequestRow: React.FC<Props> = ({
       },
       {
         key: "2",
-        label: (
-          <div>
-            <MdMoveDown style={{ marginRight: 8 }} />
-            Move to Collection
-          </div>
-        ),
+        icon: <MdMoveDown />,
+        label: "Move to Collection",
         onClick: (itemInfo) => {
           itemInfo.domEvent?.stopPropagation?.();
           setRecordToMove(record);
@@ -191,12 +187,8 @@ export const RequestRow: React.FC<Props> = ({
       },
       {
         key: "3",
-        label: (
-          <div>
-            <MdOutlineDelete style={{ marginRight: 8 }} />
-            Delete
-          </div>
-        ),
+        icon: <MdOutlineDelete />,
+        label: "Delete",
         danger: true,
         onClick: (itemInfo) => {
           itemInfo.domEvent?.stopPropagation?.();
@@ -229,12 +221,17 @@ export const RequestRow: React.FC<Props> = ({
           }}
         />
       ) : (
-        <div className={`request-row`} ref={drag} style={{ opacity: isDragging ? 0.5 : 1 }}>
+        <div
+          className={`request-row ${isHighlighted ? "recently-added-highlight" : ""}`}
+          ref={drag}
+          style={{ opacity: isDragging ? 0.5 : 1 }}
+        >
           <div
             className={`collections-list-item api ${record.id === activeTabSourceId ? "active" : ""} ${
               selectedRecords.has(record.id) && showSelection ? "selected" : ""
             }`}
             onClick={(e) => {
+              if (isHighlighted) onClearHighlight?.();
               if (onItemClick && (e.metaKey || e.ctrlKey)) {
                 onItemClick(record, e);
                 return;

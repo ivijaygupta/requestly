@@ -18,6 +18,7 @@ const initialState: ChatState = {
     },
   ],
   isProcessing: false,
+  thinkingStep: null,
   currentRequestContext: undefined,
   hasUnread: false,
 };
@@ -114,7 +115,9 @@ export const useChatStore = create<ChatStore>()(
           set(
             (state) => ({
               messages: state.messages.map((msg) =>
-                msg.id === lastMessage.id ? { ...msg, action: { ...action, status: "executing" } } : msg
+                msg.id === lastMessage.id
+                  ? { ...msg, action: { ...action, status: "executing", step: action.step } }
+                  : msg
               ),
             }),
             false,
@@ -131,7 +134,7 @@ export const useChatStore = create<ChatStore>()(
             (state) => ({
               messages: state.messages.map((msg) =>
                 msg.id === lastMessage.id && msg.action
-                  ? { ...msg, action: { ...msg.action, status: "completed" } }
+                  ? { ...msg, action: { ...msg.action, status: "completed", step: undefined } }
                   : msg
               ),
             }),
@@ -139,6 +142,10 @@ export const useChatStore = create<ChatStore>()(
             "completeAction"
           );
         }
+      },
+
+      setThinkingStep: (step) => {
+        set({ thinkingStep: step }, false, "setThinkingStep");
       },
 
       markAsRead: () => {
@@ -155,3 +162,4 @@ export const selectMessages = (state: ChatStore) => state.messages;
 export const selectIsProcessing = (state: ChatStore) => state.isProcessing;
 export const selectCurrentRequestContext = (state: ChatStore) => state.currentRequestContext;
 export const selectHasUnread = (state: ChatStore) => state.hasUnread;
+export const selectThinkingStep = (state: ChatStore) => state.thinkingStep;

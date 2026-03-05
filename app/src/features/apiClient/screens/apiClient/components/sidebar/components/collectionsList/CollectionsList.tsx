@@ -20,7 +20,7 @@ import { sessionStorage } from "utils/sessionStorage";
 import { SidebarListHeader } from "../sidebarListHeader/SidebarListHeader";
 import "./collectionsList.scss";
 import { head, isEmpty, union } from "lodash";
-import { SESSION_STORAGE_EXPANDED_RECORD_IDS_KEY } from "features/apiClient/constants";
+import { API_CLIENT_RECORD_ADDED_EVENT, SESSION_STORAGE_EXPANDED_RECORD_IDS_KEY } from "features/apiClient/constants";
 import { ApiClientExportModal } from "../../../modals/exportModal/ApiClientExportModal";
 import { PostmanExportModal } from "../../../modals/postmanCollectionExportModal/PostmanCollectionExportModal";
 import { toast } from "utils/Toast";
@@ -61,6 +61,8 @@ export const CollectionsList: React.FC<Props> = ({ onNewClick, recordTypeToBeCre
   );
   const [searchValue, setSearchValue] = useState("");
   const [isAllRecordsSelected, setIsAllRecordsSelected] = useState(false);
+  const [highlightedCollectionId, setHighlightedCollectionId] = useState<string | null>(null);
+  const [highlightedRequestId, setHighlightedRequestId] = useState<string | null>(null);
 
   useEffect(() => {
     const handleUpdates = () => {
@@ -72,6 +74,28 @@ export const CollectionsList: React.FC<Props> = ({ onNewClick, recordTypeToBeCre
       window.removeEventListener(EXPANDED_RECORD_IDS_UPDATED, handleUpdates);
     };
   }, []);
+
+  // Highlight newly added collection/request from AI chat (temporary border animation)
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const { collectionId, requestId: reqId } =
+        (e as CustomEvent<{ collectionId?: string; requestId?: string }>).detail || {};
+      if (collectionId) {
+        setHighlightedCollectionId(collectionId);
+        setExpandedRecordIds((prev) => {
+          const next = prev.includes(collectionId) ? prev : [...prev, collectionId];
+          sessionStorage.setItem(SESSION_STORAGE_EXPANDED_RECORD_IDS_KEY, next);
+          return next;
+        });
+      }
+      if (reqId) setHighlightedRequestId(reqId);
+    };
+    window.addEventListener(API_CLIENT_RECORD_ADDED_EVENT, handler);
+    return () => window.removeEventListener(API_CLIENT_RECORD_ADDED_EVENT, handler);
+  }, []);
+
+  const clearCollectionHighlight = useCallback(() => setHighlightedCollectionId(null), []);
+  const clearRequestHighlight = useCallback(() => setHighlightedRequestId(null), []);
 
   const prepareRecordsToRender = useCallback((records: RQAPI.ApiClientRecord[]) => {
     const { updatedRecords, recordsMap } = convertFlatRecordsToNestedRecords(records);
@@ -391,6 +415,8 @@ export const CollectionsList: React.FC<Props> = ({ onNewClick, recordTypeToBeCre
                     onRequestlyExportClick={handleExportCollection}
                     onItemClick={handleItemClick}
                     bulkActionOptions={{ showSelection, selectedRecords, recordsSelectionHandler, setShowSelection }}
+                    isHighlighted={highlightedCollectionId === record.id}
+                    onClearHighlight={clearCollectionHighlight}
                   />
                 );
               })}
@@ -411,6 +437,8 @@ export const CollectionsList: React.FC<Props> = ({ onNewClick, recordTypeToBeCre
                     handleRecordsToBeDeleted={handleRecordsToBeDeleted}
                     onItemClick={handleItemClick}
                     bulkActionOptions={{ showSelection, selectedRecords, recordsSelectionHandler, setShowSelection }}
+                    isHighlighted={highlightedRequestId === record.id}
+                    onClearHighlight={clearRequestHighlight}
                   />
                 );
               })}

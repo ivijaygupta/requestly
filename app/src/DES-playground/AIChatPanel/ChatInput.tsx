@@ -56,24 +56,24 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage }) => {
     inputRef.current?.focus();
   };
 
+  // Figma: space-4/5/6, body 12px, surface-0 #212121, primary #004eeb, text-placeholder #8f8f8f
   return (
-    <div className="border-t border-[#252525] bg-[#161616]">
-      {/* Suggestions */}
+    <div className="border-t border-[#383838] bg-[#1a1a1a]">
       {shouldShowSuggestions && (
         <div className="px-4 pt-3 pb-2">
-          <p className="text-[11px] font-medium text-[#666] mb-2.5 uppercase tracking-wide">Quick actions</p>
-          <div className="flex flex-wrap gap-1.5">
+          <p className="text-[11px] font-medium text-[#8f8f8f] mb-2 uppercase tracking-wide">Quick actions</p>
+          <div className="flex flex-wrap gap-2">
             {DEFAULT_SUGGESTIONS.map((suggestion) => (
               <button
                 key={suggestion.id}
                 onClick={() => handleSuggestionClick(suggestion)}
                 className={cn(
-                  "flex items-center gap-1.5 px-2.5 py-1.5 rounded-md",
-                  "bg-[#1e1e1e] border border-[#2a2a2a]",
-                  "text-[11px] text-[#999]",
-                  "hover:bg-[#252525] hover:border-[#333] hover:text-[#ccc]",
+                  "flex items-center gap-2 px-3 py-2 rounded-md",
+                  "bg-[#212121] border border-[#383838]",
+                  "text-[11px] leading-[17px] text-[#bbbbbb]",
+                  "hover:bg-[#282828] hover:text-[#ffffff]",
                   "transition-all duration-150",
-                  "focus:outline-none focus:ring-1 focus:ring-violet-500/40"
+                  "focus:outline-none focus:ring-1 focus:ring-[#004eeb]"
                 )}
               >
                 <SuggestionIcon type={suggestion.icon} />
@@ -84,13 +84,12 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage }) => {
         </div>
       )}
 
-      {/* Input area */}
-      <div className="p-4 pt-3">
+      <div className="p-4">
         <div
           className={cn(
-            "flex items-end gap-2 rounded-lg",
-            "bg-[#1a1a1a] border border-[#2a2a2a]",
-            "focus-within:border-[#404040] focus-within:bg-[#1c1c1c]",
+            "flex items-end gap-2 rounded-lg p-3",
+            "bg-[#212121] border border-[#383838]",
+            "focus-within:border-[#004eeb]",
             "transition-all duration-150"
           )}
         >
@@ -100,13 +99,13 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage }) => {
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
             onFocus={() => {}}
-            placeholder="Ask me to create a request, explain an error..."
+            placeholder="How do I fetch only new items since last check?"
             disabled={isProcessing}
             rows={1}
             className={cn(
               "flex-1 resize-none bg-transparent",
-              "px-3.5 py-2.5 text-[13px] text-[#e0e0e0]",
-              "placeholder:text-[#555]",
+              "px-0 py-0 text-[12px] leading-[18px] text-[#ffffff]",
+              "placeholder:text-[#8f8f8f]",
               "focus:outline-none",
               "disabled:opacity-50 disabled:cursor-not-allowed"
             )}
@@ -115,28 +114,26 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage }) => {
             onClick={handleSubmit}
             disabled={!inputValue.trim() || isProcessing}
             className={cn(
-              "flex-shrink-0 p-2 m-1.5 rounded-md",
-              "bg-violet-600",
-              "text-white",
-              "hover:bg-violet-500",
-              "disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-violet-600",
+              "flex-shrink-0 p-2 rounded-md",
+              "bg-[#004eeb] text-white",
+              "hover:opacity-90",
+              "disabled:opacity-30 disabled:cursor-not-allowed",
               "transition-all duration-150",
-              "focus:outline-none focus:ring-1 focus:ring-violet-400"
+              "focus:outline-none focus:ring-1 focus:ring-[#004eeb]"
             )}
           >
             {isProcessing ? <LoaderIcon className="h-4 w-4 animate-spin" /> : <SendIcon className="h-4 w-4" />}
           </button>
         </div>
 
-        {/* Hint text */}
-        <div className="flex items-center justify-center gap-1.5 mt-2.5">
-          <span className="text-[10px] text-[#444]">
-            <kbd className="px-1 py-0.5 rounded text-[9px] bg-[#222] text-[#666] font-mono border border-[#333]">
+        <div className="flex items-center justify-center gap-2 mt-2 text-[#8f8f8f]">
+          <span className="text-[9px] leading-[13px] text-[#8f8f8f] font-medium tracking-wider uppercase">
+            <kbd className="px-1.5 py-0.5 rounded bg-[#282828] text-[#bbbbbb] font-mono border border-[#383838]">
               Enter
             </kbd>
             <span className="mx-1">to send</span>
-            <span className="text-[#333]">·</span>
-            <kbd className="px-1 py-0.5 rounded text-[9px] bg-[#222] text-[#666] font-mono border border-[#333] ml-1">
+            <span className="text-[#8f8f8f] opacity-70">·</span>
+            <kbd className="px-1.5 py-0.5 rounded bg-[#282828] text-[#bbbbbb] font-mono border border-[#383838] ml-1">
               Shift+Enter
             </kbd>
             <span className="ml-1">for new line</span>

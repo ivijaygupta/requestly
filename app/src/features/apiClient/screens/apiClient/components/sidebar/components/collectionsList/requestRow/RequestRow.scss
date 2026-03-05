@@ -20,3 +20,37 @@ svg.graphql-request-icon {
 .collections-list-item.api.selected:hover {
   background-color: rgba(255, 255, 255, 0.12) !important;
 }
+
+// Persistent highlight when a request is added from AI chat; stays until user clicks the row
+.request-row.recently-added-highlight {
+  animation: request-row-enter 0.4s ease-out;
+
+  > .collections-list-item.api {
+    animation: recently-added-border 3s ease-in-out forwards;
+  }
+}
+
+@keyframes request-row-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes recently-added-border {
+  0% {
+    box-shadow: 0 0 0 1px var(--requestly-color-primary-500), 0 0 8px 2px rgba(0, 78, 235, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 1px var(--requestly-color-primary-500), 0 0 6px 2px rgba(0, 78, 235, 0.35),
+      0 0 12px 4px rgba(0, 78, 235, 0.2);
+  }
+  100% {
+    box-shadow: 0 0 0 1px var(--requestly-color-primary-500), 0 0 6px 2px rgba(0, 78, 235, 0.35),
+      0 0 12px 4px rgba(0, 78, 235, 0.2);
+  }
+}

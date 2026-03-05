@@ -49,46 +49,44 @@ export const AIChatPanelIntegrated: React.FC<AIChatPanelIntegratedProps> = ({ on
     clearMessages();
   }, [clearMessages]);
 
-  // Panel is always rendered - visibility controlled by parent container width
+  // Panel: Figma spacing 8px grid; border #383838; bg #141414 / #212121
   return (
     <div
-      className={cn("flex flex-col h-full w-full", "bg-[#141414] border-l border-[#252525]")}
+      className={cn("flex flex-col h-full w-full", "bg-[#141414] border-l border-[#383838]")}
       style={{ minWidth: "380px" }}
     >
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-[#252525] bg-[#181818]">
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-violet-600">
-            <SparklesIcon className="h-3 w-3 text-white" />
+      {/* Header: 16px h padding, 12px v padding, border-bottom #383838 */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[#383838] bg-[#212121]">
+        <div className="flex items-center gap-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-[#680cb7]">
+            <SparklesIcon className="h-4 w-4 text-white" />
           </div>
-          <h2 className="text-[13px] font-medium text-[#ccc]">AI Assistant</h2>
+          <h2 className="text-base font-medium leading-[22px] text-[#ffffff]">Requestly AI</h2>
         </div>
-        <div className="flex items-center gap-0.5">
-          {/* Clear chat button */}
+        <div className="flex items-center gap-1">
           <button
             onClick={handleClearChat}
             className={cn(
-              "p-1.5 rounded",
-              "text-[#555] hover:text-[#999]",
-              "hover:bg-[#252525]",
+              "p-2 rounded-md",
+              "text-[#8f8f8f] hover:text-[#bbbbbb]",
+              "hover:bg-[#282828]",
               "transition-colors duration-150"
             )}
             title="Clear chat"
           >
-            <TrashIcon className="h-3.5 w-3.5" />
+            <TrashIcon className="h-4 w-4" />
           </button>
-          {/* Close button */}
           <button
             onClick={closePanel}
             className={cn(
-              "p-1.5 rounded",
-              "text-[#555] hover:text-[#999]",
-              "hover:bg-[#252525]",
+              "p-2 rounded-md",
+              "text-[#8f8f8f] hover:text-[#bbbbbb]",
+              "hover:bg-[#282828]",
               "transition-colors duration-150"
             )}
             title="Close (Esc)"
           >
-            <CloseIcon className="h-3.5 w-3.5" />
+            <CloseIcon className="h-4 w-4" />
           </button>
         </div>
       </div>

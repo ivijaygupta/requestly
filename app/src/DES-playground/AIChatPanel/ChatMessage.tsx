@@ -33,10 +33,11 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onApplyAction
     }
   };
 
+  // Tighter spacing: less padding around rows and inside bubbles
   return (
     <div
       className={cn(
-        "flex w-full gap-2.5 px-4 py-2",
+        "flex w-full gap-2 px-3 py-1",
         isUser ? "justify-end" : "justify-start",
         message.isLoading && "animate-pulse"
       )}
@@ -44,45 +45,46 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onApplyAction
       {/* Avatar for assistant */}
       {!isUser && (
         <div className="flex-shrink-0 mt-0.5">
-          <div className={cn("flex h-7 w-7 items-center justify-center rounded-md", "bg-violet-600")}>
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#680cb7]">
             <SparklesIcon className="h-3.5 w-3.5 text-white" />
           </div>
         </div>
       )}
 
-      {/* Message content */}
+      {/* Message bubble: reduced padding for tighter internal spacing */}
       <div
         className={cn(
-          "max-w-[85%] rounded-lg px-3 py-2",
-          isUser ? "bg-violet-600 text-white" : "bg-[#1e1e1e] text-[#d4d4d4] border border-[#2a2a2a]",
+          "max-w-[88%] rounded-lg",
+          "px-3 py-2",
+          isUser ? "bg-[#004eeb] text-white" : "bg-[#212121] text-[#ffffff] border border-[#383838]",
           isSystem && "bg-amber-900/20 border-amber-700/30 text-amber-200"
         )}
       >
-        <div className="text-[13px] leading-relaxed whitespace-pre-wrap">
+        <div className="text-[12px] leading-[18px] whitespace-pre-wrap font-normal">
           <MessageContent content={message.content} isUser={isUser} />
         </div>
 
-        {/* Action status indicator */}
+        {/* Action status: reduced spacing from content */}
         {message.action && (
-          <div className="mt-2 pt-2 border-t border-[#333]">
+          <div className="mt-2 pt-2 border-t border-[#383838]">
             <ActionStatus action={message.action} />
           </div>
         )}
 
-        {/* Add to Collections button */}
+        {/* Add to Collections / Add Request to Sidebar: primary color */}
         {isActionable && onApplyAction && (
-          <div className="mt-2 pt-2 border-t border-[#333]">
+          <div className="mt-2 pt-2 border-t border-[#383838]">
             <button
               onClick={handleApplyAction}
               disabled={isApplied || isApplying}
               className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-medium w-full justify-center",
+                "flex items-center gap-2 px-4 py-2 rounded-md text-[12px] font-medium w-full justify-center",
                 "transition-all duration-200",
                 isApplied
-                  ? "bg-emerald-900/30 text-emerald-400 border border-emerald-700/40 cursor-default"
+                  ? "bg-[#0d1f11] text-[#6fdaa6] border border-[#104b2f] cursor-default"
                   : isApplying
-                  ? "bg-violet-900/20 text-violet-300 border border-violet-700/30 cursor-wait"
-                  : "bg-violet-600 hover:bg-violet-500 text-white cursor-pointer active:scale-[0.98]"
+                  ? "bg-[#111a2c] text-[#97c3fd] border border-[#001f88] cursor-wait"
+                  : "bg-[#004eeb] text-white hover:opacity-90 cursor-pointer active:scale-[0.98]"
               )}
             >
               {isApplied ? (
@@ -110,19 +112,10 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onApplyAction
         )}
 
         {/* Timestamp */}
-        <div className={cn("mt-1.5 text-[10px]", isUser ? "text-white/40" : "text-[#555]")}>
+        <div className={cn("mt-1.5 text-[11px] leading-[17px]", isUser ? "text-white/50" : "text-[#8f8f8f]")}>
           {formatTime(message.timestamp)}
         </div>
       </div>
-
-      {/* Avatar for user */}
-      {isUser && (
-        <div className="flex-shrink-0 mt-0.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#2a2a2a] border border-[#333]">
-            <UserIcon className="h-3.5 w-3.5 text-[#888]" />
-          </div>
-        </div>
-      )}
     </div>
   );
 };
@@ -148,7 +141,7 @@ const MessageContent: React.FC<{ content: string; isUser?: boolean }> = ({ conte
               key={index}
               className={cn(
                 "rounded px-1 py-0.5 font-mono text-[11px]",
-                isUser ? "bg-white/20 text-white" : "bg-[#252525] text-emerald-400"
+                isUser ? "bg-white/20 text-white" : "bg-[#282828] text-[#4dcc8f]"
               )}
             >
               {part.slice(1, -1)}
@@ -161,7 +154,7 @@ const MessageContent: React.FC<{ content: string; isUser?: boolean }> = ({ conte
             <span key={index}>
               {part.split("•").map((item, i) => (
                 <React.Fragment key={i}>
-                  {i > 0 && <span className={isUser ? "text-white/60" : "text-violet-400"}>•</span>}
+                  {i > 0 && <span className={isUser ? "text-white/60" : "text-[#639ff9]"}>•</span>}
                   {item}
                 </React.Fragment>
               ))}
@@ -174,25 +167,31 @@ const MessageContent: React.FC<{ content: string; isUser?: boolean }> = ({ conte
   );
 };
 
-// Action status indicator
+// Action status indicator (shows step during execution for thought process)
 const ActionStatus: React.FC<{ action: ChatMessageType["action"] }> = ({ action }) => {
   if (!action) return null;
 
   const statusConfig = {
-    pending: { label: "Pending", color: "text-[#666]", icon: ClockIcon },
-    executing: { label: "Executing...", color: "text-amber-500", icon: LoaderIcon },
-    completed: { label: "Completed", color: "text-emerald-500", icon: CheckIcon },
-    failed: { label: "Failed", color: "text-red-500", icon: XIcon },
+    pending: { label: "Pending", color: "text-[#8f8f8f]", icon: ClockIcon },
+    executing: {
+      label: action.step ?? "Executing…",
+      color: "text-[#e09400]",
+      icon: LoaderIcon,
+    },
+    completed: { label: "Completed", color: "text-[#0baa60]", icon: CheckIcon },
+    failed: { label: "Failed", color: "text-[#dc2626]", icon: XIcon },
   };
 
   const config = statusConfig[action.status];
   const Icon = config.icon;
 
   return (
-    <div className={cn("flex items-center gap-1.5 text-[11px]", config.color)}>
-      <Icon className={cn("h-3 w-3", action.status === "executing" && "animate-spin")} />
+    <div className={cn("flex items-center gap-1.5 text-[11px] leading-[17px]", config.color)}>
+      <Icon className={cn("h-3 w-3 flex-shrink-0", action.status === "executing" && "animate-spin")} />
       <span>{config.label}</span>
-      {action.type && <span className="text-[#555]">· {action.type.replace(/_/g, " ")}</span>}
+      {action.type && action.status !== "executing" && (
+        <span className="text-[#8f8f8f]">· {action.type.replace(/_/g, " ")}</span>
+      )}
     </div>
   );
 };
@@ -207,13 +206,6 @@ const formatTime = (timestamp: number) => {
 const SparklesIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <path d="M12 3l1.912 5.813a2 2 0 001.275 1.275L21 12l-5.813 1.912a2 2 0 00-1.275 1.275L12 21l-1.912-5.813a2 2 0 00-1.275-1.275L3 12l5.813-1.912a2 2 0 001.275-1.275L12 3z" />
-  </svg>
-);
-
-const UserIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-    <circle cx="12" cy="7" r="4" />
   </svg>
 );
 

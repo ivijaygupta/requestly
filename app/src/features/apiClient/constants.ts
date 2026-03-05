@@ -11,6 +11,9 @@ export const DEFAULT_REQUEST_NAME = "Untitled request";
 
 export const SESSION_STORAGE_EXPANDED_RECORD_IDS_KEY = "expanded_record_ids";
 
+/** Fired when a record is added from AI chat; sidebar uses it to highlight the new item. */
+export const API_CLIENT_RECORD_ADDED_EVENT = "requestly-api-client-record-added";
+
 export namespace PostmanAuth {
   export enum AuthType {
     INHERIT = "inherit",

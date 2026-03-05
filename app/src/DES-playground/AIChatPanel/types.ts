@@ -22,6 +22,8 @@ export interface AIAction {
   type: ActionType;
   payload: AIActionPayload;
   status: "pending" | "executing" | "completed" | "failed";
+  /** Optional step label shown during execution (e.g. "Creating collection...") */
+  step?: string;
   result?: AIActionResult;
 }
 
@@ -81,6 +83,8 @@ export interface ChatState {
   isOpen: boolean;
   messages: ChatMessage[];
   isProcessing: boolean;
+  /** Current "thinking" step shown while waiting for AI response */
+  thinkingStep: string | null;
   hasUnread: boolean;
   currentRequestContext?: {
     requestId: string;
@@ -102,6 +106,7 @@ export interface ChatActions {
   setCurrentRequestContext: (context: ChatState["currentRequestContext"]) => void;
   setCurrentAction: (action: AIAction) => void;
   completeAction: (type: ActionType) => void;
+  setThinkingStep: (step: string | null) => void;
   markAsRead: () => void;
 }
 

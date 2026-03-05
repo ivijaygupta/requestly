@@ -25,6 +25,65 @@ export interface AIServiceResponse {
 // Simulated delay for realistic feel
 const simulateDelay = (ms: number = 800) => new Promise((resolve) => setTimeout(resolve, ms + Math.random() * 400));
 
+const stepDelay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/** Options for processMessage (e.g. callback for thinking steps) */
+export interface ProcessMessageOptions {
+  onThinkingStep?: (step: string) => void;
+}
+
+/** Run thinking steps with delays; steps vary by intent type */
+async function runThinkingSteps(intent: ParsedIntent, onThinkingStep: (step: string) => void): Promise<void> {
+  const delay = 720;
+
+  switch (intent.type) {
+    case "create_collection": {
+      const steps = [
+        "Understanding your request…",
+        "Designing collection structure…",
+        "Adding endpoints…",
+        "Finalizing…",
+      ];
+      for (const step of steps) {
+        onThinkingStep(step);
+        await stepDelay(delay);
+      }
+      break;
+    }
+    case "create_request": {
+      const steps = ["Understanding your request…", "Preparing request…", "Almost there…"];
+      for (const step of steps) {
+        onThinkingStep(step);
+        await stepDelay(delay);
+      }
+      break;
+    }
+    case "modify_request": {
+      const steps = ["Analyzing modifications…", "Preparing changes…"];
+      for (const step of steps) {
+        onThinkingStep(step);
+        await stepDelay(delay);
+      }
+      break;
+    }
+    case "explain_response": {
+      const steps = ["Looking up status code…", "Preparing explanation…"];
+      for (const step of steps) {
+        onThinkingStep(step);
+        await stepDelay(delay);
+      }
+      break;
+    }
+    default: {
+      const steps = ["Thinking…", "Preparing response…"];
+      for (const step of steps) {
+        onThinkingStep(step);
+        await stepDelay(delay);
+      }
+    }
+  }
+}
+
 /**
  * Parse user message to determine intent and extract relevant data
  */
@@ -466,10 +525,19 @@ export const mockAIService = {
   generateResponse,
 
   /**
-   * Process a user message and return the AI response with optional action
+   * Process a user message and return the AI response with optional action.
+   * Calls onThinkingStep with short delays to show a visible "thought process".
    */
-  processMessage: async (message: string): Promise<AIServiceResponse> => {
+  processMessage: async (message: string, options?: ProcessMessageOptions): Promise<AIServiceResponse> => {
     const intent = parseIntent(message);
+
+    if (options?.onThinkingStep) {
+      await runThinkingSteps(intent, options.onThinkingStep);
+    } else {
+      // Minimal delay when no callback (e.g. tests)
+      await stepDelay(300);
+    }
+
     const response = await generateResponse(intent);
     return response;
   },

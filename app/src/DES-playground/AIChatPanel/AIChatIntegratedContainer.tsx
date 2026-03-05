@@ -10,6 +10,7 @@ import { mockAIService } from "./services/mockAIService";
 import { v4 as uuidv4 } from "uuid";
 import type { ChatMessage, AIAction, CreateCollectionPayload, CreateRequestPayload } from "./types";
 import { getApiClientFeatureContext, saveOrUpdateRecord } from "features/apiClient/commands/store.utils";
+import { API_CLIENT_RECORD_ADDED_EVENT } from "features/apiClient/constants";
 import { RQAPI, RequestMethod } from "features/apiClient/types";
 import { getEmptyApiEntry } from "features/apiClient/screens/apiClient/utils";
 import { getDefaultAuth } from "features/apiClient/screens/apiClient/components/views/components/request/components/AuthorizationView/defaults";
@@ -36,6 +37,7 @@ export const AIChatIntegratedContainer: React.FC = () => {
   const setLoading = useChatStore((state) => state.setLoading);
   const setCurrentAction = useChatStore((state) => state.setCurrentAction);
   const completeAction = useChatStore((state) => state.completeAction);
+  const setThinkingStep = useChatStore((state) => state.setThinkingStep);
 
   // Find and prepare DOM containers - runs once
   useEffect(() => {
@@ -199,39 +201,46 @@ export const AIChatIntegratedContainer: React.FC = () => {
     }
   }, [mainContentContainer, isOpen]);
 
-  // Simulate AI actions (create requests, collections, etc.)
+  // Simulate AI actions with step-by-step delays so the user sees "thought process"
   const simulateAction = useCallback(
     async (action: AIAction) => {
-      setCurrentAction(action);
-
-      // Simulate action completion with logging
-      console.log(`[AI Chat] 🎬 Executing action: ${action.type}`);
+      const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
       switch (action.type) {
         case "create_request": {
-          const payload = action.payload as any;
-          console.log(`[AI Chat] 📝 Creating request: ${payload.method} ${payload.url}`);
-          logRequestCreation(payload);
+          setCurrentAction({ ...action, step: "Creating request…" });
+          console.log(`[AI Chat] 📝 Creating request`);
+          await delay(450);
+          logRequestCreation(action.payload as any);
+          await delay(350);
           break;
         }
         case "create_collection": {
           const payload = action.payload as any;
+          setCurrentAction({ ...action, step: "Creating collection…" });
           console.log(`[AI Chat] 📁 Creating collection: ${payload.name}`);
+          await delay(500);
+          setCurrentAction({ ...action, step: "Adding requests…" });
+          await delay(600);
           logCollectionCreation(payload);
+          await delay(400);
           break;
         }
         case "modify_request": {
+          setCurrentAction({ ...action, step: "Applying changes…" });
           console.log(`[AI Chat] ✏️ Modifying request with:`, action.payload);
+          await delay(500);
           break;
         }
         case "explain_response": {
-          console.log(`[AI Chat] 💡 Explaining response:`, action.payload);
+          setCurrentAction({ ...action, step: "Preparing explanation…" });
+          await delay(300);
           break;
         }
+        default:
+          await delay(300);
       }
 
-      // Simulate completion delay
-      await new Promise((resolve) => setTimeout(resolve, 500));
       completeAction(action.type);
     },
     [setCurrentAction, completeAction]
@@ -251,10 +260,13 @@ export const AIChatIntegratedContainer: React.FC = () => {
       };
       addMessage(userMessage);
       setLoading(true);
+      setThinkingStep(null);
 
       try {
-        // Process with mock AI service
-        const response = await mockAIService.processMessage(content);
+        // Process with mock AI service (onThinkingStep drives the "thinking" animation)
+        const response = await mockAIService.processMessage(content, {
+          onThinkingStep: (step) => setThinkingStep(step),
+        });
 
         // Add AI response message
         const assistantMessage: ChatMessage = {
@@ -281,14 +293,21 @@ export const AIChatIntegratedContainer: React.FC = () => {
         addMessage(errorMessage);
       } finally {
         setLoading(false);
+        setThinkingStep(null);
       }
     },
-    [addMessage, setLoading, simulateAction]
+    [addMessage, setLoading, setThinkingStep, simulateAction]
   );
 
   // Handle applying an action to the real collection sidebar
   const handleApplyAction = useCallback(async (action: AIAction) => {
+    const MIN_LOADING_MS = 1200;
+    const REQUEST_STAGGER_MS = 280;
+
     try {
+      // Fake loading state so "Adding..." is visible
+      await new Promise((r) => setTimeout(r, MIN_LOADING_MS));
+
       const context = getApiClientFeatureContext();
       const recordsRepository = context.repositories.apiClientRecordsRepository;
 
@@ -296,7 +315,7 @@ export const AIChatIntegratedContainer: React.FC = () => {
         case "create_collection": {
           const payload = action.payload as CreateCollectionPayload;
 
-          // 1. Create the collection
+          // 1. Create the collection (appears in sidebar first)
           const collectionRecord: Partial<RQAPI.CollectionRecord> = {
             name: payload.name,
             type: RQAPI.RecordType.COLLECTION,
@@ -317,11 +336,12 @@ export const AIChatIntegratedContainer: React.FC = () => {
           saveOrUpdateRecord(context, collectionResult.data);
           console.log(`[AI Chat] Collection "${payload.name}" created with ID: ${collectionResult.data.id}`);
 
-          // 2. Create child requests inside the collection
+          // 2. Create child requests with small delays so they appear gradually
           if (payload.requests && payload.requests.length > 0) {
-            for (const reqPayload of payload.requests) {
+            for (let i = 0; i < payload.requests.length; i++) {
+              if (i > 0) await new Promise((r) => setTimeout(r, REQUEST_STAGGER_MS));
+              const reqPayload = payload.requests[i];
               const apiEntry = getEmptyApiEntry(RQAPI.ApiEntryType.HTTP);
-              // Set the method and URL from the AI payload
               if ("request" in apiEntry) {
                 apiEntry.request.url = reqPayload.url;
                 apiEntry.request.method = reqPayload.method as RequestMethod;
@@ -353,6 +373,10 @@ export const AIChatIntegratedContainer: React.FC = () => {
               }
             }
           }
+
+          window.dispatchEvent(
+            new CustomEvent(API_CLIENT_RECORD_ADDED_EVENT, { detail: { collectionId: collectionResult.data.id } })
+          );
           break;
         }
 
@@ -388,6 +412,9 @@ export const AIChatIntegratedContainer: React.FC = () => {
           if (result.success) {
             saveOrUpdateRecord(context, result.data);
             console.log(`[AI Chat] Request "${payload.name}" created with ID: ${result.data.id}`);
+            window.dispatchEvent(
+              new CustomEvent(API_CLIENT_RECORD_ADDED_EVENT, { detail: { requestId: result.data.id } })
+            );
           } else {
             console.error("[AI Chat] Failed to create request:", result.message);
           }

@@ -5,7 +5,7 @@ import { useApiClientContext } from "features/apiClient/contexts";
 import { sessionStorage } from "utils/sessionStorage";
 import "./contextualCollectionsList.scss";
 import { union } from "lodash";
-import { SESSION_STORAGE_EXPANDED_RECORD_IDS_KEY } from "features/apiClient/constants";
+import { API_CLIENT_RECORD_ADDED_EVENT, SESSION_STORAGE_EXPANDED_RECORD_IDS_KEY } from "features/apiClient/constants";
 import { useRBAC } from "features/rbac";
 import { useAPIRecords } from "features/apiClient/store/apiRecords/ApiRecordsContextProvider";
 import { EXPANDED_RECORD_IDS_UPDATED } from "features/apiClient/exampleCollections/store";
@@ -60,6 +60,8 @@ export const ContextualCollectionsList: React.FC<Props> = ({
   const [expandedRecordIds, setExpandedRecordIds] = useState(
     sessionStorage.getItem(SESSION_STORAGE_EXPANDED_RECORD_IDS_KEY, [])
   );
+  const [highlightedCollectionId, setHighlightedCollectionId] = useState<string | null>(null);
+  const [highlightedRequestId, setHighlightedRequestId] = useState<string | null>(null);
 
   const [childParentMap] = useAPIRecords((state) => [state.childParentMap]);
 
@@ -73,6 +75,27 @@ export const ContextualCollectionsList: React.FC<Props> = ({
       window.removeEventListener(EXPANDED_RECORD_IDS_UPDATED, handleUpdates);
     };
   }, []);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const { collectionId: cId, requestId: rId } =
+        (e as CustomEvent<{ collectionId?: string; requestId?: string }>).detail || {};
+      if (cId) {
+        setHighlightedCollectionId(cId);
+        setExpandedRecordIds((prev) => {
+          const next = prev.includes(cId) ? prev : [...prev, cId];
+          sessionStorage.setItem(SESSION_STORAGE_EXPANDED_RECORD_IDS_KEY, next);
+          return next;
+        });
+      }
+      if (rId) setHighlightedRequestId(rId);
+    };
+    window.addEventListener(API_CLIENT_RECORD_ADDED_EVENT, handler);
+    return () => window.removeEventListener(API_CLIENT_RECORD_ADDED_EVENT, handler);
+  }, []);
+
+  const clearCollectionHighlight = useCallback(() => setHighlightedCollectionId(null), []);
+  const clearRequestHighlight = useCallback(() => setHighlightedRequestId(null), []);
 
   const updatedRecords = useMemo(() => {
     handleShowSelection(false);
@@ -214,6 +237,8 @@ export const ContextualCollectionsList: React.FC<Props> = ({
                     // TODO: just pass contextId
                     onItemClick={handleItemClick}
                     handleRecordsToBeDeleted={(records) => handleRecordsToBeDeleted(records, context)}
+                    isHighlighted={highlightedCollectionId === record.id}
+                    onClearHighlight={clearCollectionHighlight}
                   />
                 );
               })}
@@ -239,6 +264,8 @@ export const ContextualCollectionsList: React.FC<Props> = ({
                     }}
                     onItemClick={handleItemClick}
                     handleRecordsToBeDeleted={(records) => handleRecordsToBeDeleted(records, context)}
+                    isHighlighted={highlightedRequestId === record.id}
+                    onClearHighlight={clearRequestHighlight}
                   />
                 );
               })}
